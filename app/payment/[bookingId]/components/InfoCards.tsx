@@ -28,9 +28,9 @@ export default function InfoCards({ bookingDetails, timeLeft, formattedTime, isD
       <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-md p-4 flex flex-col items-center`}>
         <Banknote className={`h-6 w-6 ${isDarkMode ? 'text-green-400' : 'text-green-600'} mb-2`} />
         <div className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-          {bookingDetails.amount} EGP
+          {bookingDetails.amount}
         </div>
-        <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-center mt-1`}>Amount</div>
+        <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-center mt-1`}>EGP</div>
       </div>
 
       {/* Seats Card */}

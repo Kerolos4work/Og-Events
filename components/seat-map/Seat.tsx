@@ -114,9 +114,51 @@ const Seat: React.FC<SeatProps> = ({ seat, rowNumber, categories, isSelected, on
     [rowNumber, seat.seat_number, seat.category]
   );
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (seat.status === 'available') {
       onClick(seat);
+    }
+  };
+  
+  // Track touch start position to detect tap vs pan/zoom
+  const touchStartPos = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  
+  // Handle touch events for mobile devices
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Store initial touch position and time
+    if (e.touches.length === 1) {
+      touchStartPos.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        time: Date.now()
+      };
+    }
+  };
+  
+  // Handle touch end to determine if it was a tap or pan/zoom
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // Only process if it was a single touch
+    if (e.changedTouches.length === 1 && touchStartPos.current) {
+      const touchEndPos = {
+        x: e.changedTouches[0].clientX,
+        y: e.changedTouches[0].clientY,
+        time: Date.now()
+      };
+      
+      // Calculate distance and time difference
+      const distance = Math.sqrt(
+        Math.pow(touchEndPos.x - touchStartPos.current.x, 2) + 
+        Math.pow(touchEndPos.y - touchStartPos.current.y, 2)
+      );
+      const timeDiff = touchEndPos.time - touchStartPos.current.time;
+      
+      // If it was a quick tap (small distance, short time), select the seat
+      if (distance < 10 && timeDiff < 300 && seat.status === 'available') {
+        onClick(seat);
+      }
+      
+      // Reset the touch start position
+      touchStartPos.current = null;
     }
   };
 
@@ -131,13 +173,22 @@ const Seat: React.FC<SeatProps> = ({ seat, rowNumber, categories, isSelected, on
         strokeWidth={isSelected ? '1' : '0'}
         cursor={cursor}
         onClick={handleClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{ touchAction: 'manipulation' }}
       >
         <title>{seatLabel}</title>
       </circle>
 
       {/* Checkmark for selected seats */}
       {shouldShowCheckmark(isSelected) && (
-        <g transform={`translate(${seat.position_x}, ${seat.position_y})`}>
+        <g 
+          transform={`translate(${seat.position_x}, ${seat.position_y})`}
+          onClick={handleClick}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          style={{ touchAction: 'manipulation', cursor: 'pointer' }}
+        >
           <path
             d={`M${-seat.radius * SEAT_SIZE.CHECKMARK_SCALE},${0} L${-seat.radius * 0.15},${seat.radius * 0.3} L${seat.radius * SEAT_SIZE.CHECKMARK_SCALE},${-seat.radius * 0.3}`}
             fill="none"

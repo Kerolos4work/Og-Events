@@ -20,6 +20,10 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
   // Initialize hooks
   const Viewer = React.useRef<any>(null);
   const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
+  
+  // State to track if the legend should be collapsed on mobile
+  const [legendCollapsed, setLegendCollapsed] = React.useState(false);
+  const [touchDetected, setTouchDetected] = React.useState(false);
 
   // Notification state
   const [notification, setNotification] = useState<{
@@ -98,10 +102,32 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
-
-  // Auto-fit and center map when map loads
+  
+  // Handle first touch on mobile to collapse the legend
   React.useEffect(() => {
-    if (mapData && Viewer.current && dimensions.width > 0) {
+    const handleFirstTouch = () => {
+      // Check if it's a mobile device (using touch detection)
+      if (window.innerWidth <= 768 && !touchDetected) {
+        setTouchDetected(true);
+        setLegendCollapsed(true);
+      }
+    };
+    
+    // Add touch event listener to the document
+    document.addEventListener('touchstart', handleFirstTouch, { once: true });
+    
+    return () => {
+      document.removeEventListener('touchstart', handleFirstTouch);
+    };
+  }, [touchDetected]);
+
+  // Track if this is a full page load (not a fast reload)
+  const [isFullPageLoad, setIsFullPageLoad] = React.useState(true);
+  
+  // Auto-fit and center map only on full page load
+  React.useEffect(() => {
+    // Only center on full page load, not on every render or dimension change
+    if (isFullPageLoad && mapData && Viewer.current && dimensions.width > 0) {
       // Small delay to ensure the viewer is fully initialized
       setTimeout(() => {
         if (Viewer.current && mapData) {
@@ -110,10 +136,12 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
           const scale = Math.min(scaleX, scaleY) * 0.95; // 95% fit to leave some padding
 
           Viewer.current.setPointOnViewerCenter(mapData.width / 2, mapData.height / 2, scale);
+          // After centering once, mark as not a full page load anymore
+          setIsFullPageLoad(false);
         }
       }, 100);
     }
-  }, [mapData, dimensions]);
+  }, [isFullPageLoad, mapData]);
 
   // Handle map viewer controls
   const handleFitToViewer = () => {
@@ -157,7 +185,11 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
 
       {/* LEFT FLOATING PANEL: LEGEND AND THEME SWITCHER */}
       <div className="absolute left-4 top-4 z-10 flex flex-row gap-3 items-start w-[330px]">
-        <SeatMapLegendSimple isDarkMode={isDarkMode} legendItems={legendItems} />
+        <SeatMapLegendSimple 
+          isDarkMode={isDarkMode} 
+          legendItems={legendItems} 
+          isCollapsed={legendCollapsed}
+        />
         <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} />
         <FullMapButton isDarkMode={isDarkMode} onClick={handleFitToViewer} />
       </div>
@@ -178,6 +210,8 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
           scaleFactorMin={0.1}
           onZoom={preventDefault}
           onDoubleClick={preventDefault}
+          onTouchStart={preventDefault}
+          style={{ touchAction: 'manipulation' }}
         >
           <svg
             width={mapData.width}

@@ -148,13 +148,36 @@ const SeatMapLegendSimple = ({
   legendItems,
   venueName,
   showStatusItems = true,
+  isCollapsed: externalIsCollapsed,
 }: {
   isDarkMode: boolean;
   legendItems: LegendItem[];
   venueName?: string;
   showStatusItems?: boolean;
+  isCollapsed?: boolean;
 }) => {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  // Use external isCollapsed state if provided, otherwise use internal state
+  const [internalIsCollapsed, setInternalIsCollapsed] = React.useState(false);
+  const [autoCollapsed, setAutoCollapsed] = React.useState(false);
+  
+  // Track if the legend was auto-collapsed
+  React.useEffect(() => {
+    if (externalIsCollapsed !== undefined && externalIsCollapsed !== internalIsCollapsed) {
+      setInternalIsCollapsed(externalIsCollapsed);
+      setAutoCollapsed(true);
+    }
+  }, [externalIsCollapsed]);
+  
+  // Use the internal state for UI, but allow overriding with external state
+  const isCollapsed = internalIsCollapsed;
+  
+  // Toggle function that allows expanding after auto-collapse
+  const handleToggle = () => {
+    if (autoCollapsed) {
+      setAutoCollapsed(false);
+    }
+    setInternalIsCollapsed(!isCollapsed);
+  };
   const statusItems = getSeatStatusItems();
 
   return (
@@ -167,7 +190,7 @@ const SeatMapLegendSimple = ({
       }}
     >
       <div
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={handleToggle}
         className="flex items-center justify-between cursor-pointer p-3 pb-2 pt-2"
       >
         <h2
