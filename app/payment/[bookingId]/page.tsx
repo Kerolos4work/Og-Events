@@ -20,6 +20,7 @@ export default function PaymentUploadPage({ params }: { params: Promise<{ bookin
   const {
     file,
     isUploading,
+    isConverting,
     error: submissionError,
     success,
     handleFileChange,
@@ -62,6 +63,7 @@ export default function PaymentUploadPage({ params }: { params: Promise<{ bookin
       formattedTime={formattedTime}
       file={file}
       isUploading={isUploading}
+      isConverting={isConverting}
       handleFileChange={handleFileChange}
       handleSubmit={handleSubmit}
     />

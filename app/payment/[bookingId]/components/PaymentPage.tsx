@@ -25,6 +25,7 @@ interface PaymentPageProps {
   formattedTime: string;
   file: File | null;
   isUploading: boolean;
+  isConverting?: boolean;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
 }
@@ -36,6 +37,7 @@ export default function PaymentPage({
   formattedTime,
   file,
   isUploading,
+  isConverting,
   handleFileChange,
   handleSubmit
 }: PaymentPageProps) {
@@ -82,20 +84,23 @@ export default function PaymentPage({
               <FileUpload
                 file={file}
                 isDarkMode={isDarkMode}
+                isConverting={isConverting || false}
                 handleFileChange={handleFileChange}
-              />
-
-              {/* Action Buttons */}
-              <ActionButtons
-                isDarkMode={isDarkMode}
-                file={file}
-                isUploading={isUploading}
-                handleSubmit={handleSubmit}
-                bookingId={bookingId}
               />
             </form>
           </div>
         )}
+
+        {/* Action Buttons - Always visible */}
+        <form onSubmit={handleSubmit}>
+          <ActionButtons
+            isDarkMode={isDarkMode}
+            file={file}
+            isUploading={isUploading}
+            handleSubmit={handleSubmit}
+            bookingId={bookingId}
+          />
+        </form>
       </div>
     </div>
   );

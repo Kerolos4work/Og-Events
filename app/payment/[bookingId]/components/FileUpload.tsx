@@ -2,15 +2,16 @@
 'use client';
 
 import React from 'react';
-import { Upload, X, Image } from 'lucide-react';
+import { Upload, X, Image, Loader } from 'lucide-react';
 
 interface FileUploadProps {
   file: File | null;
   isDarkMode: boolean;
+  isConverting: boolean;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export default function FileUpload({ file, isDarkMode, handleFileChange }: FileUploadProps) {
+export default function FileUpload({ file, isDarkMode, isConverting, handleFileChange }: FileUploadProps) {
   const handleRemoveFile = () => {
     // Create a synthetic event to trigger the handleFileChange with null file
     const syntheticEvent = {
@@ -21,7 +22,17 @@ export default function FileUpload({ file, isDarkMode, handleFileChange }: FileU
 
   return (
     <div className="mb-4">
-      {file ? (
+      {isConverting ? (
+        // Converting state
+        <div className={`relative ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg p-4`}>
+          <div className="flex items-center justify-center space-x-3">
+            <Loader className={`h-5 w-5 animate-spin ${isDarkMode ? 'text-blue-400' : 'text-blue-500'}`} />
+            <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Converting image...
+            </p>
+          </div>
+        </div>
+      ) : file ? (
         // File selected preview
         <div className={`relative ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg p-4`}>
           <div className="flex items-center justify-between">
@@ -39,8 +50,8 @@ export default function FileUpload({ file, isDarkMode, handleFileChange }: FileU
                   <Image className={`h-6 w-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />
                 </div>
               )}
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} truncate`}>
+              <div className="flex-1 min-w-0 max-w-[120px] sm:max-w-[180px] md:max-w-xs">
+                <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} overflow-hidden text-ellipsis whitespace-nowrap`} title={file.name}>
                   {file.name}
                 </p>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -66,7 +77,7 @@ export default function FileUpload({ file, isDarkMode, handleFileChange }: FileU
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
             <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              PNG, JPG, GIF or PDF (MAX. 10MB)
+              PNG, JPG, GIF, HEIC or PDF (MAX. 10MB)
             </p>
           </div>
           <input
