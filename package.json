@@ -1,5 +1,6 @@
 {
   "private": true,
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "dev": "next dev",
     "dev:clean": "node clean-and-start.js",
@@ -76,3 +77,4 @@
     ]
   }
 }
+
