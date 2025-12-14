@@ -49,29 +49,31 @@ export default function BookingDetailsCard({ bookingId, bookingDetails, isDarkMo
   
   return (
     <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-md p-4 mb-3`}>
-      <div className={`flex justify-between items-center mb-2`}>
-        <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Booking Details</h2>
-        <button
-          onClick={handleCancelBooking}
-          disabled={isCancelling}
-          className={`flex items-center px-3 py-1.5 rounded-md text-sm font-medium ${isDarkMode ? 'bg-red-900 text-red-200 hover:bg-red-800 disabled:opacity-50' : 'bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50'}`}
-        >
-          {isCancelling ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-1"></div>
-              Cancelling...
-            </>
-          ) : (
-            <>
-              <X className="h-4 w-4 mr-1" />
-              Cancel Booking
-            </>
-          )}
-        </button>
-      </div>
-      <div className={`flex justify-between items-center`}>
-        <p className={`text-xl font-bold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{bookingDetails.name || 'Guest User'}</p>
-        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>ID: {bookingId.split('-')[0]}</p>
+      <div className={`flex justify-between items-start`}>
+        <div className="flex flex-col">
+          <p className={`text-xl font-bold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{bookingDetails.name || 'Guest User'}</p>
+          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}>{bookingDetails.phone || 'No phone number'}</p>
+        </div>
+        <div className="flex flex-col items-end">
+          <button
+            onClick={handleCancelBooking}
+            disabled={isCancelling}
+            className={`flex items-center px-3 py-1.5 rounded-md text-sm font-medium ${isDarkMode ? 'bg-red-900 text-red-200 hover:bg-red-800 disabled:opacity-50' : 'bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50'}`}
+          >
+            {isCancelling ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-1"></div>
+                Cancelling...
+              </>
+            ) : (
+              <>
+                <X className="h-4 w-4 mr-1" />
+                Cancel Booking
+              </>
+            )}
+          </button>
+          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-2`}>ID: {bookingId.split('-')[0]}</p>
+        </div>
       </div>
     </div>
   );
