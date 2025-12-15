@@ -53,13 +53,17 @@ export const useSeatMap = (planId: string) => {
     if (!data) return;
 
     // Create a color and price lookup map for categories
+    // Only include categories that are visible
     const categoryMap: Record<string, Category> = {};
     if (data.categories) {
       data.categories.forEach(c => {
-        categoryMap[c.name] = {
-          color: c.color,
-          price: c.price || 0,
-        };
+        // Only include categories that are marked as visible
+        if (c.isVisible !== false) {
+          categoryMap[c.name] = {
+            color: c.color,
+            price: c.price || 0,
+          };
+        }
       });
     }
     setCategories(categoryMap);

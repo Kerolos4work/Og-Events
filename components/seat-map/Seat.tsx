@@ -89,6 +89,17 @@ HoldStatusAnimation.displayName = 'HoldStatusAnimation';
  * Seat Component - Renders an individual seat with its status
  */
 const Seat: React.FC<SeatProps> = ({ seat, rowNumber, categories, isSelected, onClick }) => {
+  // Check if the seat category is visible
+  const isCategoryVisible = useMemo(
+    () => categories[seat.category] !== undefined,
+    [categories, seat.category]
+  );
+  
+  // If the category is not visible, don't render the seat
+  if (!isCategoryVisible) {
+    return null;
+  }
+  
   // Memoize calculated values to avoid recalculation on every render
   const seatColor = useMemo(
     () => calculateSeatColor(seat, isSelected, categories),
