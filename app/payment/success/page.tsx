@@ -4,6 +4,31 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircle } from 'lucide-react';
 import crypto from 'crypto';
+import { updateBookingWithPayment } from '@/components/seat-map/services';
+
+// Handle approve function
+const handleApprove = async (bookingId: string) => {
+  try {
+    const response = await fetch('/api/approve-booking', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bookingId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to approve booking');
+    }
+
+    const result = await response.json();
+    console.log('Booking approved with handleApprove:', result);
+    return result;
+  } catch (err: any) {
+    console.error('Error in handleApprove:', err);
+    return { success: false, error: err.message || 'An unexpected error occurred' };
+  }
+};
 
 export default function PaymentSuccess() {
   const searchParams = useSearchParams();
@@ -81,9 +106,26 @@ export default function PaymentSuccess() {
       if (paymentStatus === 'SUCCESS') {
         setIsSuccess(true);
 
-        // Update booking status in local state for immediate UI feedback
-        // The webhook will handle the database update
+        // Update booking with payment proof
         try {
+          const merchantOrderId = searchParams.get('merchantOrderId');
+          if (merchantOrderId) {
+            // Update the booking with payment proof
+            const { data, error } = await updateBookingWithPayment(merchantOrderId, 'online');
+            
+            if (error) {
+              console.error('Failed to update booking with payment:', error);
+            } else {
+              console.log('Booking updated successfully with online payment');
+              
+              // Auto-approve the booking after successful payment
+              const booking = { id: merchantOrderId };
+              handleApprove(booking.id);
+            }
+          }
+
+          // Update booking status in local state for immediate UI feedback
+          // The webhook will handle the database update
           // Save payment info to localStorage for potential recovery
           localStorage.setItem('lastPayment', JSON.stringify({
             orderId,
