@@ -4,8 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { redirect } from 'next/navigation';
-import { updateSettings, goToDashboard, logout, updatePaymentInstructions } from './actions';
+import { updateSettings, goToDashboard, logout } from './actions';
+import { updatePaymentInstructions } from './update-payment-instructions';
 import PaymentMethodsEditor from './payment-methods-editor';
+import PaymentModeForm from './payment-mode-form';
 import fs from 'fs';
 import { isUserAdmin } from '@/lib/auth';
 import path from 'path';
@@ -84,6 +86,16 @@ export default async function SettingsContent() {
 
         <Card>
           <CardHeader>
+            <CardTitle>Payment Settings</CardTitle>
+            <CardDescription>Configure payment processing options</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PaymentModeForm />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>Email Settings</CardTitle>
             <CardDescription>Configure email notification settings</CardDescription>
           </CardHeader>
@@ -113,13 +125,15 @@ export default async function SettingsContent() {
         </Card>
       </div>
 
-      <div className="mt-6">
-        <PaymentMethodsEditor 
-          initialTitle={settingsData.payment.instructions.title}
-          initialPaymentMethods={settingsData.payment.instructions.paymentMethods}
-          onSave={updatePaymentInstructions}
-        />
-      </div>
+      {settingsData.payment.mode === "manual" && (
+        <div className="mt-6">
+          <PaymentMethodsEditor
+            initialTitle={settingsData.payment.instructions.title}
+            initialPaymentMethods={settingsData.payment.instructions.paymentMethods}
+            onSave={updatePaymentInstructions}
+          />
+        </div>
+      )}
 
       <div className="mt-6">
         <Card>

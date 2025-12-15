@@ -1,5 +1,6 @@
 {
   "payment": {
+    "mode": "manual",
     "timeLimit": 7,
     "timeLimitUnit": "seconds",
     "description": "Payment time limit in min (default: 10 minutes)",
@@ -7,25 +8,25 @@
       "title": "Payment Instructions",
       "paymentMethods": [
         {
-          "image": "https://example.com/images/orange-cash.jpg",
+          "image": "https://cdn.aptoide.com/imgs/d/3/4/d348ecefc59798c34d2be3507044163c_icon.png",
           "title": "Orange Cash",
           "phoneNumber": "01203163377",
           "name": "Orange Cash Account",
           "color": "#FF7900"
         },
         {
-          "image": "https://example.com/images/instapay.jpg",
+          "image": "https://play-lh.googleusercontent.com/Pv1p8v-KJq4Z_LLOjQjBZpK8DNJg4Zb5aNOQY7WfoiHR4Gfs165Z1TTNMThZ883Yfg",
           "title": "Instapay",
           "phoneNumber": "01203163377",
           "name": "Instapay Account",
-          "color": "#8B5CF6"
+          "color": "#b826d9"
         },
         {
-          "image": "https://example.com/images/sudani-cash.jpg",
-          "title": "Sudani Cash",
+          "image": "https://static.vecteezy.com/system/resources/thumbnails/016/134/397/small/e-wallet-logo-design-design-template-vector.jpg",
+          "title": "Wallet",
           "phoneNumber": "0123630702",
-          "name": "Sudani Cash Account",
-          "color": "#3B82F6"
+          "name": "kerolos t***** r***",
+          "color": "#4d26d9"
         }
       ],
       "description": "Payment methods displayed to users during checkout"

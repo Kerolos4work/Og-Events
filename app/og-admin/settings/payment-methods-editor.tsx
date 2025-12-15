@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Image as ImageIcon } from 'lucide-react';
 import { useState } from 'react';
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 
 interface PaymentMethod {
   image: string;
@@ -19,7 +19,7 @@ interface PaymentMethod {
 interface PaymentMethodsProps {
   initialTitle: string;
   initialPaymentMethods: PaymentMethod[];
-  onSave: (formData: FormData) => Promise<void>;
+  onSave: (formData: FormData) => Promise<any>;
 }
 
 export default function PaymentMethodsEditor({
@@ -29,7 +29,7 @@ export default function PaymentMethodsEditor({
 }: PaymentMethodsProps) {
   const [title, setTitle] = useState(initialTitle);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(initialPaymentMethods);
-  const [state, formAction] = useFormState(onSave, { message: '' });
+  const [state, formAction] = useActionState(onSave, { message: '' });
 
   const addPaymentMethod = () => {
     setPaymentMethods([...paymentMethods, { 

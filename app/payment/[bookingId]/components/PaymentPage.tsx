@@ -9,6 +9,7 @@ import InfoCards from './InfoCards';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import FileUpload from './FileUpload';
 import ActionButtons from './ActionButtons';
+import settings from '../../../../config/settings.json';
 
 interface PaymentMethod {
   image: string;
@@ -43,6 +44,7 @@ export default function PaymentPage({
 }: PaymentPageProps) {
   const { isDarkMode } = useDarkMode();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
+  const paymentMode = settings.payment.mode;
 
   const handlePaymentMethodSelect = (method: PaymentMethod) => {
     setSelectedPaymentMethod(method);
@@ -66,14 +68,16 @@ export default function PaymentPage({
           isDarkMode={isDarkMode}
         />
 
-        {/* Payment Method Selection */}
-        <PaymentMethodSelector 
-          isDarkMode={isDarkMode}
-          onMethodSelect={handlePaymentMethodSelect}
-        />
+        {/* Payment Method Selection - Only show for manual payment mode */}
+        {paymentMode === 'manual' && (
+          <PaymentMethodSelector
+            isDarkMode={isDarkMode}
+            onMethodSelect={handlePaymentMethodSelect}
+          />
+        )}
 
-        {/* Upload Section - Only show after payment method is selected */}
-        {selectedPaymentMethod && (
+        {/* Upload Section - Only show for manual payment mode and after payment method is selected */}
+        {paymentMode === 'manual' && selectedPaymentMethod && (
           <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-md p-4 mb-3`}>
             <div className="flex items-center mb-4">
               <Upload className={`h-5 w-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'} mr-2`} />
@@ -100,6 +104,7 @@ export default function PaymentPage({
             handleSubmit={handleSubmit}
             bookingId={bookingId}
             bookingDetails={bookingDetails}
+            paymentMode={paymentMode}
           />
         </form>
       </div>
