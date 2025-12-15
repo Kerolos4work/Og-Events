@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { MapData, Category, Seat } from './types';
+import { getVenueCategories } from '@/actions/venue-categories';
 
 export const fetchVenueMap = async (planId: string): Promise<MapData | null> => {
   // Check if Supabase client is properly initialized
@@ -14,7 +15,7 @@ export const fetchVenueMap = async (planId: string): Promise<MapData | null> => 
     return null;
   }
 
-  // 1. Fetch the Plan and Categories
+  // 1. Fetch the Plan
   const { data: plan, error } = await supabase
     .from('venues')
     .select('*')
@@ -32,7 +33,10 @@ export const fetchVenueMap = async (planId: string): Promise<MapData | null> => 
     return null;
   }
 
-  // 2. Fetch the full hierarchy (Zones -> Rows -> Seats)
+  // 2. Get filtered categories based on visibility settings
+  const visibleCategories = await getVenueCategories();
+  
+  // 3. Fetch the full hierarchy (Zones -> Rows -> Seats)
   // Supabase allows deep nesting queries
   const { data: zones, error: zonesError } = await supabase
     .from('zones')
@@ -54,7 +58,11 @@ export const fetchVenueMap = async (planId: string): Promise<MapData | null> => 
   }
 
   // Even if zones is empty, we still want to return the map data
-  return { ...plan, zones: zones || [] };
+  return { 
+    ...plan, 
+    zones: zones || [],
+    categories: visibleCategories // Use only visible categories
+  };
 };
 
 export const createGuestBooking = async (
