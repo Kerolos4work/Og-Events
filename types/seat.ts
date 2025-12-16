@@ -55,6 +55,7 @@ export interface Category {
   name: string;
   color: string;
   price: number;
+  isVisible?: boolean;
 }
 
 export interface Venue {

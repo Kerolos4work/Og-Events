@@ -13,8 +13,8 @@ import { TicketElementKey, TicketSize, CustomTextElement } from './designer/type
 
 export default function TicketDesigner() {
   const supabase = createClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null); // For export
+  const fileInputRef = useRef<HTMLInputElement>(null!);
+  const canvasRef = useRef<HTMLCanvasElement>(null!); // For export
 
   // 1. Core State Management Hook
   const {
@@ -178,7 +178,7 @@ export default function TicketDesigner() {
         {/* Main Canvas Area */}
         <TicketCanvas
           ticketSize={ticketSize}
-          ticketDetails={ticketDetails}
+          // ticketDetails removed as it is not a prop of TicketCanvas
           ticketElements={ticketElements}
           activeElement={activeElement}
           selectedImage={selectedImage}
@@ -186,8 +186,9 @@ export default function TicketDesigner() {
           imageUploading={imageUploading}
           onElementMouseDown={handleElementMouseDown}
           onResizeMouseDown={handleResizeMouseDown}
-          canvasRef={canvasRef}
+          isDragging={isDragging}
         />
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
 
         {/* Right Sidebar Properties */}
         <TicketPropertiesPanel
@@ -197,8 +198,8 @@ export default function TicketDesigner() {
           ticketDetails={ticketDetails}
           ticketSize={ticketSize}
           onDetailChange={handleDetailChange}
-          onSizeChange={(dim, val) => handleTicketSizeChange(dim, parseInt(val) || 0)}
-          onToggleVisibility={toggleElementVisibility}
+          onSizeChange={(dim, val) => handleTicketSizeChange(dim, val.toString())}
+          onToggleVisibility={(name) => toggleElementVisibility(name as TicketElementKey)}
           onUpdateCustomText={updateCustomTextElement}
           onDeleteCustomText={deleteCustomTextElement}
           onUpdateElement={handleUpdateElement}

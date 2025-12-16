@@ -35,7 +35,7 @@ export const fetchVenueMap = async (planId: string): Promise<MapData | null> => 
 
   // 2. Get filtered categories based on visibility settings
   const visibleCategories = await getVenueCategories();
-  
+
   // 3. Fetch the full hierarchy (Zones -> Rows -> Seats)
   // Supabase allows deep nesting queries
   const { data: zones, error: zonesError } = await supabase
@@ -58,8 +58,8 @@ export const fetchVenueMap = async (planId: string): Promise<MapData | null> => 
   }
 
   // Even if zones is empty, we still want to return the map data
-  return { 
-    ...plan, 
+  return {
+    ...plan,
     zones: zones || [],
     categories: visibleCategories // Use only visible categories
   };
@@ -98,7 +98,7 @@ export const subscribeToSeatUpdates = (onUpdate: (seat: Seat) => void) => {
       },
       payload => {
         // payload.new contains the updated row data (e.g., status: 'booked')
-        onUpdate(payload.new);
+        onUpdate(payload.new as unknown as Seat);
       }
     )
     .subscribe(); // Start listening

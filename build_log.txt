@@ -1,0 +1,60 @@
+﻿
+> build
+> next build
+
+   Γû▓ Next.js 16.0.8 (Turbopack, Cache Components)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 13.6s
+   Running TypeScript ...
+   Collecting page data using 7 workers ...
+   Generating static pages using 7 workers (0/34) ...
+   Generating static pages using 7 workers (8/34) 
+   Generating static pages using 7 workers (16/34) 
+   Generating static pages using 7 workers (25/34) 
+ Γ£ô Generating static pages using 7 workers (34/34) in 2.2s
+   Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /api/approve-booking
+Γö£ ╞Æ /api/book-seats
+Γö£ ╞Æ /api/create-bucket
+Γö£ ╞Æ /api/generate-separate-tickets-pdf
+Γö£ ╞Æ /api/generate-tickets-pdf
+Γö£ ╞Æ /api/image
+Γö£ ╞Æ /api/image-proxy
+Γö£ ╞Æ /api/list-buckets
+Γö£ ╞Æ /api/payment/hash
+Γö£ ╞Æ /api/payment/validate
+Γö£ ╞Æ /api/payment/webhook
+Γö£ ╞Æ /api/reject-booking
+Γö£ ╞Æ /api/settings
+Γö£ Γùï /api/settings/payment-mode
+Γö£ ╞Æ /auth/callback
+Γö£ ΓùÉ /auth/login
+Γö£ ╞Æ /auth/logout
+Γö£ Γùï /booking-confirmation
+Γö£ ΓùÉ /og-admin
+Γö£ ΓùÉ /og-admin/booked-orders
+Γö£ ΓùÉ /og-admin/bookings
+Γö£ ΓùÉ /og-admin/pending-bookings
+Γö£ ΓùÉ /og-admin/settings
+Γö£ ΓùÉ /og-admin/tickets
+Γö£ Γùï /opengraph-image.png
+Γö£ ΓùÉ /payment/[bookingId]
+Γöé Γöö /payment/[bookingId]
+Γö£ Γùï /payment/failure
+Γö£ Γùï /payment/success
+Γö£ Γùï /test-buckets
+Γöö Γùï /twitter-image.png
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)             prerendered as static content
+ΓùÉ  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content
+╞Æ  (Dynamic)            server-rendered on demand
+

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/@/components/ui/input';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -14,7 +14,7 @@ interface InstructionStep {
 interface PaymentInstructionsProps {
   initialTitle: string;
   initialSteps: InstructionStep[];
-  onSave: (formData: FormData) => Promise<void>;
+  onSave: (prevState: any, formData: FormData) => Promise<{ message: string }>;
 }
 
 export default function PaymentInstructionsEditor({
@@ -60,7 +60,7 @@ export default function PaymentInstructionsEditor({
             {state.message}
           </div>
         )}
-        <form action={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="instructions-title">Instructions Title</Label>
             <Input

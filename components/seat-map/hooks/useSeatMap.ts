@@ -60,8 +60,10 @@ export const useSeatMap = (planId: string) => {
         // Only include categories that are marked as visible
         if (c.isVisible !== false) {
           categoryMap[c.name] = {
+            name: c.name,
             color: c.color,
             price: c.price || 0,
+            isVisible: c.isVisible,
           };
         }
       });

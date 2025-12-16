@@ -69,7 +69,7 @@ export function useCanvasInteraction({
       } else {
         // @ts-ignore
         const element = ticketElements[elementName as TicketElementKey];
-        if (element) {
+        if (element && !Array.isArray(element)) {
           elementX = element.x;
           elementY = element.y;
         }
@@ -110,7 +110,7 @@ export function useCanvasInteraction({
       } else {
         // @ts-ignore
         const element = ticketElements[elementName as TicketElementKey];
-        if (element) {
+        if (element && !Array.isArray(element)) {
           width = element.width;
           height = element.height;
           x = element.x;

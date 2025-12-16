@@ -83,9 +83,10 @@ export async function POST(request: NextRequest) {
       let qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${seat.id}`;
 
       // Check if template has QR code URL with color parameters
-      if (template.ticketDetails && template.ticketDetails.qrCode) {
+      if (template.ticketElements && template.ticketElements.qrCode && template.ticketElements.qrCode.visible) {
         // Extract color parameters from template QR code URL
-        const templateQrUrl = new URL(template.ticketDetails.qrCode);
+        // Generate default QR code URL with color parameters
+        const templateQrUrl = new URL(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${seat.id}`);
         const colorParam = templateQrUrl.searchParams.get('color');
         const bgcolorParam = templateQrUrl.searchParams.get('bgcolor');
 
@@ -119,13 +120,12 @@ export async function POST(request: NextRequest) {
                     letter-spacing: ${text.position.letterSpacing || 0}px;
                     text-transform: ${text.position.textTransform || 'none'};
                     text-decoration: ${text.position.textDecoration || 'none'};
-                    background-color: ${text.position.backgroundColor}${
-                      text.position.backgroundOpacity !== undefined
-                        ? Math.round(text.position.backgroundOpacity * 255)
-                            .toString(16)
-                            .padStart(2, '0')
-                        : ''
-                    };
+                    background-color: ${text.position.backgroundColor}${text.position.backgroundOpacity !== undefined
+              ? Math.round(text.position.backgroundOpacity * 255)
+                .toString(16)
+                .padStart(2, '0')
+              : ''
+            };
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -134,8 +134,12 @@ export async function POST(request: NextRequest) {
 
           // Replace placeholders in text content
           let content = text.content;
-          content = content.replace('{ZONE}', seat.rows.zones.name);
-          content = content.replace('{ROW}', seat.rows.row_number);
+          // Helper to get row and zone safely
+          const rowData = Array.isArray(seat.rows) ? seat.rows[0] : seat.rows;
+          const zoneData = Array.isArray(rowData?.zones) ? rowData.zones[0] : rowData?.zones;
+
+          content = content.replace('{ZONE}', zoneData?.name || '');
+          content = content.replace('{ROW}', rowData?.row_number || '');
           content = content.replace('{SEAT}', seat.seat_number);
           content = content.replace('{NAME}', booking.name);
           content = content.replace('{EMAIL}', booking.email);
@@ -177,16 +181,14 @@ export async function POST(request: NextRequest) {
                 </head>
                 <body>
                     <div style="position: relative; width: ${template.ticketSize.width}px; height: ${template.ticketSize.height}px; overflow: hidden;">
-                        ${
-                          template.backgroundImageUrl
-                            ? `<img src="${template.backgroundImageUrl}" style="position: absolute; left: ${template.ticketElements.backgroundImage.x}px; top: ${template.ticketElements.backgroundImage.y}px; width: ${template.ticketElements.backgroundImage.width}px; height: ${template.ticketElements.backgroundImage.height}px; z-index: 0;" />`
-                            : ''
-                        }
-                        ${
-                          template.ticketElements.qrCode.visible
-                            ? `<img src="${qrCodeUrl}" style="position: absolute; left: ${template.ticketElements.qrCode.x}px; top: ${template.ticketElements.qrCode.y}px; width: ${template.ticketElements.qrCode.width}px; height: ${template.ticketElements.qrCode.height}px; z-index: 2;" />`
-                            : ''
-                        }
+                        ${template.backgroundImageUrl
+          ? `<img src="${template.backgroundImageUrl}" style="position: absolute; left: ${template.ticketElements.backgroundImage.x}px; top: ${template.ticketElements.backgroundImage.y}px; width: ${template.ticketElements.backgroundImage.width}px; height: ${template.ticketElements.backgroundImage.height}px; z-index: 0;" />`
+          : ''
+        }
+                        ${template.ticketElements.qrCode.visible
+          ? `<img src="${qrCodeUrl}" style="position: absolute; left: ${template.ticketElements.qrCode.x}px; top: ${template.ticketElements.qrCode.y}px; width: ${template.ticketElements.qrCode.width}px; height: ${template.ticketElements.qrCode.height}px; z-index: 2;" />`
+          : ''
+        }
                         ${customTextsHtml}
                     </div>
                 </body>
@@ -195,7 +197,8 @@ export async function POST(request: NextRequest) {
 
       return {
         html: htmlDocument,
-        filename: `${booking.name.replace(/\s+/g, '-')}-${seat.rows.zones.name}-${seat.rows.row_number}-${seat.seat_number}.html`,
+        filename: `${booking.name.replace(/\s+/g, '-')}-${(Array.isArray(seat.rows) ? seat.rows[0] : seat.rows)?.zones?.[0]?.name || 'zone'
+          }-${(Array.isArray(seat.rows) ? seat.rows[0] : seat.rows)?.row_number || 'row'}-${seat.seat_number}.html`,
       };
     });
 

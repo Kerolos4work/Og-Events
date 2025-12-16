@@ -1,4 +1,4 @@
-import { usePendingBookingRedirect } from '@/lib/booking-redirect-updated';
+import { usePendingBookingRedirect } from '@/lib/booking-redirect';
 
 /**
  * Component that checks for pending bookings and redirects users to the payment page

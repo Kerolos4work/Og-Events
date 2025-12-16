@@ -1,0 +1,170 @@
+﻿app/api/generate-separate-tickets-pdf/route.ts(138,52): error TS2551: Property 'row' does not exist on type '{ id: any; seat_number: any; status: any; category: any; rows: { row_number: any; zones: { name: any; }[]; }[]; }'. Did you mean 'rows'?
+app/api/generate-separate-tickets-pdf/route.ts(139,51): error TS2551: Property 'row' does not exist on type '{ id: any; seat_number: any; status: any; category: any; rows: { row_number: any; zones: { name: any; }[]; }[]; }'. Did you mean 'rows'?
+app/api/generate-separate-tickets-pdf/route.ts(199,64): error TS2551: Property 'row' does not exist on type '{ id: any; seat_number: any; status: any; category: any; rows: { row_number: any; zones: { name: any; }[]; }[]; }'. Did you mean 'rows'?
+app/api/generate-separate-tickets-pdf/route.ts(199,98): error TS2551: Property 'row' does not exist on type '{ id: any; seat_number: any; status: any; category: any; rows: { row_number: any; zones: { name: any; }[]; }[]; }'. Did you mean 'rows'?
+app/api/generate-tickets-pdf/route.ts(91,22): error TS2339: Property 'ticketDetails' does not exist on type '{ ticketSize: { width: number; height: number; }; ticketElements: { backgroundImage: { x: number; y: number; width: number; height: number; visible: boolean; }; qrCode: { x: number; y: number; width: number; height: number; visible: boolean; }; customTexts: never[]; }; backgroundImageUrl: null; }'.
+app/api/generate-tickets-pdf/route.ts(91,48): error TS2339: Property 'ticketDetails' does not exist on type '{ ticketSize: { width: number; height: number; }; ticketElements: { backgroundImage: { x: number; y: number; width: number; height: number; visible: boolean; }; qrCode: { x: number; y: number; width: number; height: number; visible: boolean; }; customTexts: never[]; }; backgroundImageUrl: null; }'.
+app/api/generate-tickets-pdf/route.ts(93,50): error TS2339: Property 'ticketDetails' does not exist on type '{ ticketSize: { width: number; height: number; }; ticketElements: { backgroundImage: { x: number; y: number; width: number; height: number; visible: boolean; }; qrCode: { x: number; y: number; width: number; height: number; visible: boolean; }; customTexts: never[]; }; backgroundImageUrl: null; }'.
+app/api/generate-tickets-pdf/route.ts(142,59): error TS2339: Property 'zones' does not exist on type '{ row_number: any; zones: { name: any; }[]; }[]'.
+app/api/generate-tickets-pdf/route.ts(143,58): error TS2339: Property 'row_number' does not exist on type '{ row_number: any; zones: { name: any; }[]; }[]'.
+app/og-admin/components/category-visibility.tsx(46,57): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+app/og-admin/components/category-visibility.tsx(46,62): error TS7006: Parameter 'char' implicitly has an 'any' type.
+app/og-admin/components/category-visibility.tsx(54,11): error TS2532: Object is possibly 'undefined'.
+app/og-admin/components/charts.tsx(7,21): error TS2345: Argument of type '() => Promise<{ default: typeof Bar; }>' is not assignable to parameter of type 'DynamicOptions<Props> | Loader<Props>'.
+  Type '() => Promise<{ default: typeof Bar; }>' is not assignable to type '() => LoaderComponent<Props>'.
+    Type 'Promise<{ default: typeof Bar; }>' is not assignable to type 'LoaderComponent<Props>'.
+      Type '{ default: typeof Bar; }' is not assignable to type 'ComponentType<Props> | ComponentModule<Props>'.
+        Type '{ default: typeof Bar; }' is not assignable to type 'ComponentModule<Props>'.
+          Types of property 'default' are incompatible.
+            Type 'typeof Bar' is not assignable to type 'ComponentType<Props>'.
+              Type 'typeof Bar' is not assignable to type 'ComponentClass<Props, any>'.
+                The types of 'defaultProps.layout' are incompatible between these types.
+                  Type 'string' is not assignable to type '"horizontal" | "vertical" | undefined'.
+app/og-admin/components/charts.tsx(8,23): error TS2345: Argument of type '() => Promise<{ default: typeof XAxis; }>' is not assignable to parameter of type 'DynamicOptions<Props> | Loader<Props>'.
+  Type '() => Promise<{ default: typeof XAxis; }>' is not assignable to type '() => LoaderComponent<Props>'.
+    Type 'Promise<{ default: typeof XAxis; }>' is not assignable to type 'LoaderComponent<Props>'.
+      Type '{ default: typeof XAxis; }' is not assignable to type 'ComponentType<Props> | ComponentModule<Props>'.
+        Type '{ default: typeof XAxis; }' is not assignable to type 'ComponentModule<Props>'.
+          Types of property 'default' are incompatible.
+            Type 'typeof XAxis' is not assignable to type 'ComponentType<Props>'.
+              Type 'typeof XAxis' is not assignable to type 'ComponentClass<Props, any>'.
+                The types of 'defaultProps.type' are incompatible between these types.
+                  Type 'string' is not assignable to type '"number" | "category" | undefined'.
+app/og-admin/components/charts.tsx(9,23): error TS2345: Argument of type '() => Promise<{ default: typeof YAxis; }>' is not assignable to parameter of type 'DynamicOptions<Props> | Loader<Props>'.
+  Type '() => Promise<{ default: typeof YAxis; }>' is not assignable to type '() => LoaderComponent<Props>'.
+    Type 'Promise<{ default: typeof YAxis; }>' is not assignable to type 'LoaderComponent<Props>'.
+      Type '{ default: typeof YAxis; }' is not assignable to type 'ComponentType<Props> | ComponentModule<Props>'.
+        Type '{ default: typeof YAxis; }' is not assignable to type 'ComponentModule<Props>'.
+          Types of property 'default' are incompatible.
+            Type 'typeof YAxis' is not assignable to type 'ComponentType<Props>'.
+              Type 'typeof YAxis' is not assignable to type 'ComponentClass<Props, any>'.
+                The types of 'defaultProps.type' are incompatible between these types.
+                  Type 'string' is not assignable to type '"number" | "category" | undefined'.
+app/og-admin/components/charts.tsx(11,25): error TS2345: Argument of type '() => Promise<{ default: typeof Tooltip; }>' is not assignable to parameter of type 'DynamicOptions<TooltipProps<ValueType, NameType>> | Loader<TooltipProps<ValueType, NameType>>'.
+  Type '() => Promise<{ default: typeof Tooltip; }>' is not assignable to type '() => LoaderComponent<TooltipProps<ValueType, NameType>>'.
+    Type 'Promise<{ default: typeof Tooltip; }>' is not assignable to type 'LoaderComponent<TooltipProps<ValueType, NameType>>'.
+      Type '{ default: typeof Tooltip; }' is not assignable to type 'ComponentType<TooltipProps<ValueType, NameType>> | ComponentModule<TooltipProps<ValueType, NameType>>'.
+        Type '{ default: typeof Tooltip; }' is not assignable to type 'ComponentModule<TooltipProps<ValueType, NameType>>'.
+          Types of property 'default' are incompatible.
+            Type 'typeof Tooltip' is not assignable to type 'ComponentType<TooltipProps<ValueType, NameType>>'.
+              Type 'typeof Tooltip' is not assignable to type 'ComponentClass<TooltipProps<ValueType, NameType>, any>'.
+                The types of 'defaultProps.animationEasing' are incompatible between these types.
+                  Type 'string' is not assignable to type 'AnimationTiming | undefined'.
+app/og-admin/components/charts.tsx(12,24): error TS2345: Argument of type '() => Promise<{ default: typeof Legend; }>' is not assignable to parameter of type 'DynamicOptions<Props> | Loader<Props>'.
+  Type '() => Promise<{ default: typeof Legend; }>' is not assignable to type '() => LoaderComponent<Props>'.
+    Type 'Promise<{ default: typeof Legend; }>' is not assignable to type 'LoaderComponent<Props>'.
+      Type '{ default: typeof Legend; }' is not assignable to type 'ComponentType<Props> | ComponentModule<Props>'.
+        Type '{ default: typeof Legend; }' is not assignable to type 'ComponentModule<Props>'.
+          Types of property 'default' are incompatible.
+            Type 'typeof Legend' is not assignable to type 'ComponentType<Props>'.
+              Type 'typeof Legend' is not assignable to type 'ComponentClass<Props, any>'.
+                The types of 'defaultProps.layout' are incompatible between these types.
+                  Type 'string' is not assignable to type 'LayoutType | undefined'.
+app/og-admin/components/charts.tsx(15,21): error TS2345: Argument of type '() => Promise<{ default: typeof Pie; }>' is not assignable to parameter of type 'DynamicOptions<Props> | Loader<Props>'.
+  Type '() => Promise<{ default: typeof Pie; }>' is not assignable to type '() => LoaderComponent<Props>'.
+    Type 'Promise<{ default: typeof Pie; }>' is not assignable to type 'LoaderComponent<Props>'.
+      Type '{ default: typeof Pie; }' is not assignable to type 'ComponentType<Props> | ComponentModule<Props>'.
+        Type '{ default: typeof Pie; }' is not assignable to type 'ComponentModule<Props>'.
+          Types of property 'default' are incompatible.
+            Type 'typeof Pie' is not assignable to type 'ComponentType<Props>'.
+              Type 'typeof Pie' is not assignable to type 'ComponentClass<Props, any>'.
+                The types of 'defaultProps.legendType' are incompatible between these types.
+                  Type 'string' is not assignable to type 'LegendType | undefined'.
+app/og-admin/components/seat-map.tsx(50,22): error TS2345: Argument of type '{ id: any; seat_number: any; category: any; status: any; rows: { row_number: any; zones: { name: any; }[]; }[]; }[]' is not assignable to parameter of type 'SetStateAction<Seat[]>'.
+  Type '{ id: any; seat_number: any; category: any; status: any; rows: { row_number: any; zones: { name: any; }[]; }[]; }[]' is not assignable to type 'Seat[]'.
+    Type '{ id: any; seat_number: any; category: any; status: any; rows: { row_number: any; zones: { name: any; }[]; }[]; }' is not assignable to type 'Seat'.
+      Types of property 'rows' are incompatible.
+        Type '{ row_number: any; zones: { name: any; }[]; }[]' is missing the following properties from type '{ row_number: string; zones: { name: string; }; }': row_number, zones
+app/og-admin/settings/payment-instructions-new.tsx(26,3): error TS2339: Property 'initialSteps' does not exist on type 'PaymentInstructionsProps'.
+app/og-admin/settings/payment-instructions-new.tsx(30,38): error TS2304: Cannot find name 'InstructionStep'.
+app/og-admin/settings/payment-instructions-new.tsx(31,44): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(action: (state: void) => void | Promise<void>, initialState: void, permalink?: string | undefined): [state: void, dispatch: () => void, isPending: boolean]', gave the following error.
+    Argument of type '(formData: FormData) => Promise<void>' is not assignable to parameter of type '(state: void) => void | Promise<void>'.
+      Types of parameters 'formData' and 'state' are incompatible.
+        Type 'void' is not assignable to type 'FormData'.
+  Overload 2 of 2, '(action: (state: void, payload: unknown) => void | Promise<void>, initialState: void, permalink?: string | undefined): [state: void, dispatch: (payload: unknown) => void, isPending: boolean]', gave the following error.
+    Argument of type '(formData: FormData) => Promise<void>' is not assignable to parameter of type '(state: void, payload: unknown) => void | Promise<void>'.
+      Types of parameters 'formData' and 'state' are incompatible.
+        Type 'void' is not assignable to type 'FormData'.
+app/og-admin/settings/payment-instructions-new.tsx(41,51): error TS2304: Cannot find name 'InstructionStep'.
+app/og-admin/settings/payment-instructions-new.tsx(61,16): error TS2339: Property 'message' does not exist on type 'void'.
+app/og-admin/settings/payment-instructions-new.tsx(62,56): error TS2339: Property 'message' does not exist on type 'void'.
+app/og-admin/settings/payment-instructions-new.tsx(63,20): error TS2339: Property 'message' does not exist on type 'void'.
+app/og-admin/settings/payment-instructions-new.tsx(133,26): error TS2554: Expected 0 arguments, but got 1.
+app/og-admin/settings/payment-instructions.tsx(3,23): error TS2307: Cannot find module '@/@/components/ui/input' or its corresponding type declarations.
+app/og-admin/settings/payment-instructions.tsx(27,44): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(action: (state: void) => void | Promise<void>, initialState: void, permalink?: string | undefined): [state: void, dispatch: () => void, isPending: boolean]', gave the following error.
+    Argument of type '(formData: FormData) => Promise<void>' is not assignable to parameter of type '(state: void) => void | Promise<void>'.
+      Types of parameters 'formData' and 'state' are incompatible.
+        Type 'void' is not assignable to type 'FormData'.
+  Overload 2 of 2, '(action: (state: void, payload: unknown) => void | Promise<void>, initialState: void, permalink?: string | undefined): [state: void, dispatch: (payload: unknown) => void, isPending: boolean]', gave the following error.
+    Argument of type '(formData: FormData) => Promise<void>' is not assignable to parameter of type '(state: void, payload: unknown) => void | Promise<void>'.
+      Types of parameters 'formData' and 'state' are incompatible.
+        Type 'void' is not assignable to type 'FormData'.
+app/og-admin/settings/payment-instructions.tsx(48,16): error TS2554: Expected 0 arguments, but got 1.
+app/og-admin/settings/payment-instructions.tsx(58,16): error TS2339: Property 'message' does not exist on type 'void'.
+app/og-admin/settings/payment-instructions.tsx(59,56): error TS2339: Property 'message' does not exist on type 'void'.
+app/og-admin/settings/payment-instructions.tsx(60,20): error TS2339: Property 'message' does not exist on type 'void'.
+app/og-admin/settings/payment-instructions.tsx(63,15): error TS2322: Type '(e: React.FormEvent) => void' is not assignable to type 'string | ((formData: FormData) => void | Promise<void>) | undefined'.
+  Type '(e: React.FormEvent) => void' is not assignable to type '(formData: FormData) => void | Promise<void>'.
+    Types of parameters 'e' and 'formData' are incompatible.
+      Type 'FormData' is missing the following properties from type 'FormEvent<Element>': nativeEvent, currentTarget, target, bubbles, and 11 more.
+app/og-admin/settings/payment-instructions.tsx(70,26): error TS7006: Parameter 'e' implicitly has an 'any' type.
+app/og-admin/settings/payment-instructions.tsx(106,32): error TS7006: Parameter 'e' implicitly has an 'any' type.
+app/og-admin/settings/payment-instructions.tsx(117,32): error TS7006: Parameter 'e' implicitly has an 'any' type.
+app/og-admin/settings/payment-methods-editor.tsx(188,26): error TS2554: Expected 0 arguments, but got 1.
+app/og-admin/settings/payment-mode-form.tsx(11,31): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(action: (state: { message: string; success: boolean; }) => { message: string; success: boolean; } | Promise<{ message: string; success: boolean; }>, initialState: { message: string; success: boolean; }, permalink?: string | undefined): [state: ...]', gave the following error.
+    Argument of type '(prevState: any, formData: FormData) => Promise<{ message: string; success: boolean; }>' is not assignable to parameter of type '(state: { message: string; success: boolean; }) => { message: string; success: boolean; } | Promise<{ message: string; success: boolean; }>'.
+      Target signature provides too few arguments. Expected 2 or more, but got 1.
+  Overload 2 of 2, '(action: (state: { message: string; success: boolean; }, payload: FormData) => { message: string; success: boolean; } | Promise<{ message: string; success: boolean; }>, initialState: { ...; }, permalink?: string | undefined): [state: ...]', gave the following error.
+    Argument of type '{ message: string; }' is not assignable to parameter of type '{ message: string; success: boolean; }'.
+      Property 'success' is missing in type '{ message: string; }' but required in type '{ message: string; success: boolean; }'.
+app/og-admin/settings/payment-mode-form.tsx(46,16): error TS2554: Expected 0 arguments, but got 1.
+app/og-admin/settings/payment-mode-form.tsx(46,26): error TS2339: Property 'then' does not exist on type 'void'.
+app/og-admin/settings/payment-mode-form.tsx(106,45): error TS2339: Property 'pending' does not exist on type '{ message: string; success: boolean; }'.
+app/og-admin/settings/payment-mode-form.tsx(107,16): error TS2339: Property 'pending' does not exist on type '{ message: string; success: boolean; }'.
+app/og-admin/settings/settings-content.tsx(133,13): error TS2322: Type '(prevState: any, formData: FormData) => Promise<{ message: string; success: boolean; }>' is not assignable to type '(formData: FormData) => Promise<any>'.
+  Target signature provides too few arguments. Expected 2 or more, but got 1.
+components/pending-booking-redirect-updated.tsx(1,43): error TS2307: Cannot find module '@/lib/booking-redirect-updated' or its corresponding type declarations.
+components/seat-map/BookingForm.tsx(142,21): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+components/seat-map/hooks/useSeatMap.ts(61,15): error TS2339: Property 'isVisible' does not exist on type 'Category'.
+components/seat-map/hooks/useSeatMap.ts(62,11): error TS2741: Property 'name' is missing in type '{ color: string; price: number; }' but required in type 'Category'.
+components/seat-map/SeatMap.tsx(213,11): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: UncontrolledProps): UncontrolledReactSVGPanZoom', gave the following error.
+    Type '{ children: Element; ref: RefObject<any>; width: number; height: number; tool: "auto"; miniatureProps: { position: "none"; background: string; width: number; height: number; }; ... 9 more ...; style: { ...; }; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<UncontrolledReactSVGPanZoom> & Readonly<UncontrolledProps>'.
+      Property 'onTouchStart' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<UncontrolledReactSVGPanZoom> & Readonly<UncontrolledProps>'.
+  Overload 2 of 2, '(props: UncontrolledProps, context: any): UncontrolledReactSVGPanZoom', gave the following error.
+    Type '{ children: Element; ref: RefObject<any>; width: number; height: number; tool: "auto"; miniatureProps: { position: "none"; background: string; width: number; height: number; }; ... 9 more ...; style: { ...; }; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<UncontrolledReactSVGPanZoom> & Readonly<UncontrolledProps>'.
+      Property 'onTouchStart' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<UncontrolledReactSVGPanZoom> & Readonly<UncontrolledProps>'.
+components/seat-map/services.ts(101,18): error TS2345: Argument of type '{ [key: string]: any; }' is not assignable to parameter of type 'Seat'.
+  Type '{ [key: string]: any; }' is missing the following properties from type 'Seat': id, row_id, seat_number, status, and 4 more.
+components/tickets/designer/useCanvasInteraction.ts(73,30): error TS2339: Property 'x' does not exist on type '(ElementPosition & { visible: boolean; }) | (ElementPosition & { visible: boolean; backgroundColor: string; foregroundColor: string; transparentBackground: boolean; }) | CustomTextElement[]'.
+  Property 'x' does not exist on type 'CustomTextElement[]'.
+components/tickets/designer/useCanvasInteraction.ts(74,30): error TS2339: Property 'y' does not exist on type '(ElementPosition & { visible: boolean; }) | (ElementPosition & { visible: boolean; backgroundColor: string; foregroundColor: string; transparentBackground: boolean; }) | CustomTextElement[]'.
+  Property 'y' does not exist on type 'CustomTextElement[]'.
+components/tickets/designer/useCanvasInteraction.ts(114,27): error TS2339: Property 'width' does not exist on type '(ElementPosition & { visible: boolean; }) | (ElementPosition & { visible: boolean; backgroundColor: string; foregroundColor: string; transparentBackground: boolean; }) | CustomTextElement[]'.
+  Property 'width' does not exist on type 'CustomTextElement[]'.
+components/tickets/designer/useCanvasInteraction.ts(115,28): error TS2339: Property 'height' does not exist on type '(ElementPosition & { visible: boolean; }) | (ElementPosition & { visible: boolean; backgroundColor: string; foregroundColor: string; transparentBackground: boolean; }) | CustomTextElement[]'.
+  Property 'height' does not exist on type 'CustomTextElement[]'.
+components/tickets/designer/useCanvasInteraction.ts(116,23): error TS2339: Property 'x' does not exist on type '(ElementPosition & { visible: boolean; }) | (ElementPosition & { visible: boolean; backgroundColor: string; foregroundColor: string; transparentBackground: boolean; }) | CustomTextElement[]'.
+  Property 'x' does not exist on type 'CustomTextElement[]'.
+components/tickets/designer/useCanvasInteraction.ts(117,23): error TS2339: Property 'y' does not exist on type '(ElementPosition & { visible: boolean; }) | (ElementPosition & { visible: boolean; backgroundColor: string; foregroundColor: string; transparentBackground: boolean; }) | CustomTextElement[]'.
+  Property 'y' does not exist on type 'CustomTextElement[]'.
+components/tickets/designer/useTicketDesigner.ts(66,37): error TS2339: Property 'visible' does not exist on type '(ElementPosition & { visible: boolean; }) | (ElementPosition & { visible: boolean; backgroundColor: string; foregroundColor: string; transparentBackground: boolean; }) | CustomTextElement[]'.
+  Property 'visible' does not exist on type 'CustomTextElement[]'.
+components/tickets/TicketDesigner.tsx(65,5): error TS2322: Type 'RefObject<HTMLCanvasElement | null>' is not assignable to type 'RefObject<HTMLCanvasElement>'.
+  Type 'HTMLCanvasElement | null' is not assignable to type 'HTMLCanvasElement'.
+    Type 'null' is not assignable to type 'HTMLCanvasElement'.
+components/tickets/TicketDesigner.tsx(174,9): error TS2322: Type 'RefObject<HTMLInputElement | null>' is not assignable to type 'RefObject<HTMLInputElement>'.
+  Type 'HTMLInputElement | null' is not assignable to type 'HTMLInputElement'.
+    Type 'null' is not assignable to type 'HTMLInputElement'.
+components/tickets/TicketDesigner.tsx(181,11): error TS2322: Type '{ ticketSize: TicketSize; ticketDetails: TicketDetails; ticketElements: TicketElements; activeElement: string | null; selectedImage: string | null; ... 4 more ...; canvasRef: RefObject<...>; }' is not assignable to type 'IntrinsicAttributes & TicketCanvasProps'.
+  Property 'ticketDetails' does not exist on type 'IntrinsicAttributes & TicketCanvasProps'.
+components/tickets/TicketDesigner.tsx(200,67): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+components/tickets/TicketDesigner.tsx(201,11): error TS2322: Type '(elementName: TicketElementKey) => void' is not assignable to type '(elementName: string) => void'.
+  Types of parameters 'elementName' and 'elementName' are incompatible.
+    Type 'string' is not assignable to type 'keyof TicketElements'.
+next.config.ts(15,44): error TS7006: Parameter 'plugin' implicitly has an 'any' type.
+next.config.ts(21,52): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+next.config.ts(26,36): error TS7006: Parameter 'useItem' implicitly has an 'any' type.

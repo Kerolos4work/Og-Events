@@ -32,26 +32,26 @@ const BookingForm: React.FC<BookingFormProps> = ({
   // State for mobile expand/collapse
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // Check if we're on mobile
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
+
   // Reset to collapsed when seats are cleared
   useEffect(() => {
     if (selectedSeats.length === 0) {
       setIsExpanded(false);
     }
   }, [selectedSeats.length]);
-  
+
   const {
     register,
     handleSubmit,
@@ -100,18 +100,16 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
   return (
     <div
-      className={`absolute z-20 transition-all duration-300 transform ${
-        isMobile
+      className={`absolute z-20 transition-all duration-300 transform ${isMobile
           ? `bottom-0 left-0 right-0 rounded-t-3xl ${isExpanded ? 'h-[87vh]' : 'h-auto'}`
           : 'top-4 right-4 right-4'
-      }`}
+        }`}
     >
       <div
-        className={`${isDarkMode ? 'border-white/10' : 'border-black/10'} border shadow-2xl ${
-          isMobile
+        className={`${isDarkMode ? 'border-white/10' : 'border-black/10'} border shadow-2xl ${isMobile
             ? 'rounded-t-3xl w-full flex flex-col h-full'
             : 'rounded-2xl w-72 max-w-[90vw] p-4'
-        }`}
+          }`}
         style={{
           backgroundColor: isDarkMode ? 'rgb(0 0 0 / 0.6)' : 'rgb(255 255 255 / 0.6)',
           backdropFilter: 'blur(24px)',
@@ -121,7 +119,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
         <div
           className={`${isMobile ? 'p-4' : 'mb-3'} ${isMobile ? '' : `border-b ${isDarkMode ? 'border-white/10' : 'border-black/10'} pb-3`}`}
         >
-          <div 
+          <div
             className={`flex justify-between items-center ${isMobile ? 'cursor-pointer' : ''}`}
             onClick={isMobile ? () => setIsExpanded(!isExpanded) : undefined}
           >
@@ -139,7 +137,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onClearAll();
+                    onClearAll?.();
                   }}
                   className={`text-xs font-medium ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
                   type="button"

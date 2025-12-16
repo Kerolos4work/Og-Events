@@ -46,8 +46,16 @@ export function SeatMap({ seats, onSeatClick }: SeatMapProps) {
       try {
         const { getSeats } = await import('../actions/seats');
         const data = await getSeats();
-        
-        setSeatsData(data);
+
+        const mappedData = data.map((seat: any) => ({
+          ...seat,
+          rows: {
+            ...seat.rows[0],
+            zones: seat.rows[0]?.zones[0] || { name: 'Unknown' }
+          }
+        }));
+
+        setSeatsData(mappedData);
         setLoading(false);
       } catch (err: any) {
         setError(err.message || 'An error occurred while fetching seats');
@@ -138,8 +146,8 @@ export function SeatMap({ seats, onSeatClick }: SeatMapProps) {
 
   return (
     <div className="space-y-6">
-      <CategoryToggle 
-        categories={categories} 
+      <CategoryToggle
+        categories={categories}
         onToggleChange={handleToggleChange}
       />
 
@@ -179,8 +187,8 @@ export function SeatMap({ seats, onSeatClick }: SeatMapProps) {
                               ${!isBooked && !isReserved ? 'bg-green-500 text-white hover:bg-green-600' : ''}
                             `}
                             style={
-                              isVisible && !isBooked && !isReserved 
-                                ? { backgroundColor: categoriesFromSeats[seat.category].color } 
+                              isVisible && !isBooked && !isReserved
+                                ? { backgroundColor: categoriesFromSeats[seat.category].color }
                                 : {}
                             }
                             title={`${seat.seat_number} - ${seat.category} (${seat.status})`}

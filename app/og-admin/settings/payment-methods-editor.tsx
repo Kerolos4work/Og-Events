@@ -19,7 +19,7 @@ interface PaymentMethod {
 interface PaymentMethodsProps {
   initialTitle: string;
   initialPaymentMethods: PaymentMethod[];
-  onSave: (formData: FormData) => Promise<any>;
+  onSave: (prevState: any, formData: FormData) => Promise<any>;
 }
 
 export default function PaymentMethodsEditor({
@@ -32,10 +32,10 @@ export default function PaymentMethodsEditor({
   const [state, formAction] = useActionState(onSave, { message: '' });
 
   const addPaymentMethod = () => {
-    setPaymentMethods([...paymentMethods, { 
-      image: '', 
-      title: `Payment Method ${paymentMethods.length + 1}`, 
-      phoneNumber: '', 
+    setPaymentMethods([...paymentMethods, {
+      image: '',
+      title: `Payment Method ${paymentMethods.length + 1}`,
+      phoneNumber: '',
       name: '',
       color: '#000000'
     }]);
@@ -157,7 +157,7 @@ export default function PaymentMethodsEditor({
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor={`method-color-${index}`}>Brand Color</Label>
                     <div className="flex items-center space-x-2">
@@ -169,8 +169,8 @@ export default function PaymentMethodsEditor({
                         placeholder="#000000"
                         className="flex-grow"
                       />
-                      <div 
-                        className="w-10 h-10 rounded border border-gray-300" 
+                      <div
+                        className="w-10 h-10 rounded border border-gray-300"
                         style={{ backgroundColor: method.color }}
                       />
                     </div>
@@ -180,8 +180,8 @@ export default function PaymentMethodsEditor({
             ))}
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             onClick={(e) => {
               e.preventDefault();
               const formData = createFormData();

@@ -15,10 +15,16 @@ interface PaymentMethod {
   name: string;
 }
 
+interface InstructionStep {
+  title: string;
+  body: string;
+}
+
 interface PaymentInstructionsProps {
   initialTitle: string;
+  initialSteps: InstructionStep[];
   initialPaymentMethods: PaymentMethod[];
-  onSave: (formData: FormData) => Promise<void>;
+  onSave: (prevState: any, formData: FormData) => Promise<{ message: string }>;
 }
 
 export default function PaymentInstructionsEditor({
@@ -125,8 +131,8 @@ export default function PaymentInstructionsEditor({
             ))}
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             onClick={(e) => {
               e.preventDefault();
               const formData = createFormData();

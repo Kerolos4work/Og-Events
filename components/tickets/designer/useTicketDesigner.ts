@@ -59,13 +59,20 @@ export function useTicketDesigner() {
   };
 
   const toggleElementVisibility = (elementName: TicketElementKey) => {
-    setTicketElements(prev => ({
-      ...prev,
-      [elementName]: {
-        ...prev[elementName],
-        visible: !prev[elementName].visible,
-      },
-    }));
+    setTicketElements(prev => {
+      // Custom texts are handled individually, cannot toggle visibility of the entire array
+      if (elementName === 'customTexts') return prev;
+
+      return {
+        ...prev,
+        [elementName]: {
+          // @ts-ignore - dynamic access to union type
+          ...prev[elementName],
+          // @ts-ignore
+          visible: !prev[elementName].visible,
+        },
+      };
+    });
   };
 
   const addCustomTextElement = () => {

@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircle } from 'lucide-react';
-import crypto from 'crypto';
 import { updateBookingWithPayment } from '@/components/seat-map/services';
 
-// Handle approve function
+// ... (handleApprove function remains the same)
 const handleApprove = async (bookingId: string) => {
   try {
     const response = await fetch('/api/approve-booking', {
@@ -30,7 +29,7 @@ const handleApprove = async (bookingId: string) => {
   }
 };
 
-export default function PaymentSuccess() {
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isVerifying, setIsVerifying] = useState(true);
@@ -112,12 +111,12 @@ export default function PaymentSuccess() {
           if (merchantOrderId) {
             // Update the booking with payment proof
             const { data, error } = await updateBookingWithPayment(merchantOrderId, 'online');
-            
+
             if (error) {
               console.error('Failed to update booking with payment:', error);
             } else {
               console.log('Booking updated successfully with online payment');
-              
+
               // Auto-approve the booking after successful payment
               const booking = { id: merchantOrderId };
               handleApprove(booking.id);
@@ -198,5 +197,24 @@ export default function PaymentSuccess() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentSuccess() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading...</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

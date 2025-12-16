@@ -11,7 +11,7 @@ interface Category {
   id: string;
   name: string;
   color: string;
-  count?: number;
+  count: number;
 }
 
 interface CategoryVisibilityProps {
@@ -38,12 +38,12 @@ export function CategoryVisibility({ categories = [], onSaveComplete }: Category
       try {
         const { getSeats } = await import('../actions/seats');
         const seats = await getSeats();
-        
+
         // Extract categories from seats
         const categoriesFromSeats = seats.reduce((acc: Record<string, Category>, seat) => {
           if (!acc[seat.category]) {
             // Generate a color based on category name
-            const hue = seat.category.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360;
+            const hue = seat.category.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % 360;
             acc[seat.category] = {
               id: seat.category,
               name: seat.category,
@@ -51,10 +51,10 @@ export function CategoryVisibility({ categories = [], onSaveComplete }: Category
               count: 0
             };
           }
-          acc[seat.category].count++;
+          acc[seat.category]!.count++;
           return acc;
         }, {});
-        
+
         setCategoriesData(Object.values(categoriesFromSeats));
       } catch (error: any) {
         toast.error(`Failed to load categories: ${error.message}`);
@@ -146,13 +146,13 @@ export function CategoryVisibility({ categories = [], onSaveComplete }: Category
         <div className="flex justify-between items-center">
           <CardTitle>Category Visibility</CardTitle>
           <div className="flex space-x-2">
-            <button 
+            <button
               onClick={() => toggleAll(true)}
               className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
             >
               Show All
             </button>
-            <button 
+            <button
               onClick={() => toggleAll(false)}
               className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
             >
@@ -169,8 +169,8 @@ export function CategoryVisibility({ categories = [], onSaveComplete }: Category
           {categoriesData.map((category) => (
             <div key={category.id} className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div 
-                  className="w-4 h-4 rounded" 
+                <div
+                  className="w-4 h-4 rounded"
                   style={{ backgroundColor: category.color }}
                 />
                 <span className="font-medium">{category.name}</span>
@@ -189,8 +189,8 @@ export function CategoryVisibility({ categories = [], onSaveComplete }: Category
         </div>
 
         <div className="mt-6 flex justify-end">
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={!hasChanges || saving}
           >
             {saving ? "Saving..." : "Save Settings"}

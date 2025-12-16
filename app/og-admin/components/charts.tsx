@@ -1,19 +1,20 @@
 "use client";
 
+
 import dynamic from 'next/dynamic';
 
 // Import recharts components dynamically to avoid SSR issues
-const BarChart = dynamic(() => import('recharts').then(mod => ({ default: mod.BarChart })), { ssr: false });
-const Bar = dynamic(() => import('recharts').then(mod => ({ default: mod.Bar })), { ssr: false });
-const XAxis = dynamic(() => import('recharts').then(mod => ({ default: mod.XAxis })), { ssr: false });
-const YAxis = dynamic(() => import('recharts').then(mod => ({ default: mod.YAxis })), { ssr: false });
-const CartesianGrid = dynamic(() => import('recharts').then(mod => ({ default: mod.CartesianGrid })), { ssr: false });
-const Tooltip = dynamic(() => import('recharts').then(mod => ({ default: mod.Tooltip })), { ssr: false });
-const Legend = dynamic(() => import('recharts').then(mod => ({ default: mod.Legend })), { ssr: false });
-const ResponsiveContainer = dynamic(() => import('recharts').then(mod => ({ default: mod.ResponsiveContainer })), { ssr: false });
-const PieChart = dynamic(() => import('recharts').then(mod => ({ default: mod.PieChart })), { ssr: false });
-const Pie = dynamic(() => import('recharts').then(mod => ({ default: mod.Pie })), { ssr: false });
-const Cell = dynamic(() => import('recharts').then(mod => ({ default: mod.Cell })), { ssr: false });
+const BarChart = dynamic(() => import('recharts').then(mod => ({ default: mod.BarChart as any })), { ssr: false }) as React.ComponentType<any>;
+const Bar = dynamic(() => import('recharts').then(mod => ({ default: mod.Bar as any })), { ssr: false }) as React.ComponentType<any>;
+const XAxis = dynamic(() => import('recharts').then(mod => ({ default: mod.XAxis as any })), { ssr: false }) as React.ComponentType<any>;
+const YAxis = dynamic(() => import('recharts').then(mod => ({ default: mod.YAxis as any })), { ssr: false }) as React.ComponentType<any>;
+const CartesianGrid = dynamic(() => import('recharts').then(mod => ({ default: mod.CartesianGrid as any })), { ssr: false }) as React.ComponentType<any>;
+const Tooltip = dynamic(() => import('recharts').then(mod => ({ default: mod.Tooltip as any })), { ssr: false }) as React.ComponentType<any>;
+const Legend = dynamic(() => import('recharts').then(mod => ({ default: mod.Legend as any })), { ssr: false }) as React.ComponentType<any>;
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => ({ default: mod.ResponsiveContainer as any })), { ssr: false }) as React.ComponentType<any>;
+const PieChart = dynamic(() => import('recharts').then(mod => ({ default: mod.PieChart as any })), { ssr: false }) as React.ComponentType<any>;
+const Pie = dynamic(() => import('recharts').then(mod => ({ default: mod.Pie as any })), { ssr: false }) as React.ComponentType<any>;
+const Cell = dynamic(() => import('recharts').then(mod => ({ default: mod.Cell as any })), { ssr: false }) as React.ComponentType<any>;
 
 // Colors for charts
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
@@ -50,7 +51,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
           cx="50%"
           cy="50%"
           labelLine={false}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }: { name: any; percent: any }) => `${name} ${(percent * 100).toFixed(0)}%`}
           outerRadius={80}
           fill="#8884d8"
           dataKey="value"
@@ -78,7 +79,7 @@ export function SeatStatusChart({ data }: SeatStatusChartProps) {
           cx="50%"
           cy="50%"
           labelLine={false}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }: { name: any; percent: any }) => `${name} ${(percent * 100).toFixed(0)}%`}
           outerRadius={80}
           dataKey="value"
         >

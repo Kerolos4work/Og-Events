@@ -20,7 +20,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
   // Initialize hooks
   const Viewer = React.useRef<any>(null);
   const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
-  
+
   // State to track if the legend should be collapsed on mobile
   const [legendCollapsed, setLegendCollapsed] = React.useState(false);
   const [touchDetected, setTouchDetected] = React.useState(false);
@@ -102,7 +102,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
-  
+
   // Handle first touch on mobile to collapse the legend
   React.useEffect(() => {
     const handleFirstTouch = () => {
@@ -112,10 +112,10 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
         setLegendCollapsed(true);
       }
     };
-    
+
     // Add touch event listener to the document
     document.addEventListener('touchstart', handleFirstTouch, { once: true });
-    
+
     return () => {
       document.removeEventListener('touchstart', handleFirstTouch);
     };
@@ -123,7 +123,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
 
   // Track if this is a full page load (not a fast reload)
   const [isFullPageLoad, setIsFullPageLoad] = React.useState(true);
-  
+
   // Auto-fit and center map only on full page load
   React.useEffect(() => {
     // Only center on full page load, not on every render or dimension change
@@ -185,9 +185,9 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
 
       {/* LEFT FLOATING PANEL: LEGEND AND THEME SWITCHER */}
       <div className="absolute left-4 top-4 z-10 flex flex-row gap-3 items-start w-[330px]">
-        <SeatMapLegendSimple 
-          isDarkMode={isDarkMode} 
-          legendItems={legendItems} 
+        <SeatMapLegendSimple
+          isDarkMode={isDarkMode}
+          legendItems={legendItems}
           isCollapsed={legendCollapsed}
         />
         <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} />
@@ -210,7 +210,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
           scaleFactorMin={0.1}
           onZoom={preventDefault}
           onDoubleClick={preventDefault}
-          onTouchStart={preventDefault}
+
           style={{ touchAction: 'manipulation' }}
         >
           <svg
