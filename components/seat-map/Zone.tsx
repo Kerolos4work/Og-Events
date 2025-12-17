@@ -189,7 +189,7 @@ const Zone: React.FC<ZoneProps> = ({
             row={row}
             categories={categories}
             selectedSeats={selectedSeats}
-            onSeatClick={seatsSelectable ? onSeatClick : undefined}
+            onSeatClick={seatsSelectable ? onSeatClick : () => {}}
           />
         ))}
 

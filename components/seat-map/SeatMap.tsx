@@ -204,6 +204,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
 
   // Handle zone click to zoom to the zone
   const handleZoneClick = React.useCallback((zoneId: string) => {
+    if (!mapData) return;
     const zone = mapData.zones.find(z => z.id === zoneId);
     if (zone && Viewer.current) {
       // Calculate zone bounds in global coordinates

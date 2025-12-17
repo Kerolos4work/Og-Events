@@ -7,6 +7,186 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, QrCode, X, Camera, Upload } from 'lucide-react';
 
+// Types for better type safety
+type CameraPermission = "granted" | "denied" | "prompt" | null;
+type PlatformType = 'ios' | 'android' | 'desktop';
+
+// Custom hook for platform detection
+const usePlatformDetection = () => {
+  const [platform, setPlatform] = useState<PlatformType>('desktop');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    // Detect specific platform
+    if (/ipad|iphone|ipod/i.test(userAgent)) {
+      setPlatform('ios');
+    } else if (/android/i.test(userAgent)) {
+      setPlatform('android');
+    } else {
+      setPlatform('desktop');
+    }
+
+    setIsMobile(isMobileDevice || hasTouchScreen);
+
+    // Store platform info for use in other parts of the component
+    (window as any).isIOS = platform === 'ios';
+    (window as any).isAndroid = platform === 'android';
+  }, [platform]);
+
+  return { platform, isMobile };
+};
+
+// Custom hook for camera permissions
+const useCameraPermissions = () => {
+  const [cameraPermission, setCameraPermission] = useState<CameraPermission>(null);
+
+  useEffect(() => {
+    const checkCameraPermissions = async () => {
+      try {
+        if (navigator.permissions && navigator.permissions.query) {
+          const result = await navigator.permissions.query({ name: 'camera' as PermissionName });
+          setCameraPermission(result.state as CameraPermission);
+          result.addEventListener('change', () => {
+            setCameraPermission(result.state as CameraPermission);
+          });
+        }
+      } catch (err) {
+        console.log('Permissions API not available');
+      }
+    };
+
+    checkCameraPermissions();
+  }, []);
+
+  return { cameraPermission, setCameraPermission };
+};
+
+// Helper function to create scanner options based on platform
+const createScannerOptions = (platform: PlatformType, isMobile: boolean) => {
+  const preferredCamera = isMobile ? 'environment' : undefined;
+
+  return {
+    highlightScanRegion: true,
+    highlightCodeOutline: true,
+    preferredCamera,
+    maxScansPerSecond: isMobile ? 5 : 10,
+    returnDetailedScanResult: true,
+    calculateScanRegion: (video: HTMLVideoElement) => {
+      let scanRegionSize: number;
+
+      if (platform === 'ios') {
+        const smallestDimension = Math.min(video.videoWidth, video.videoHeight);
+        scanRegionSize = Math.round(0.5 * smallestDimension);
+      } else if (platform === 'android') {
+        const smallestDimension = Math.min(video.videoWidth, video.videoHeight);
+        scanRegionSize = Math.round(0.7 * smallestDimension);
+      } else {
+        const smallestDimension = Math.min(video.videoWidth, video.videoHeight);
+        scanRegionSize = Math.round(0.6 * smallestDimension);
+      }
+
+      return {
+        x: Math.round((video.videoWidth - scanRegionSize) / 2),
+        y: Math.round((video.videoHeight - scanRegionSize) / 2),
+        width: scanRegionSize,
+        height: scanRegionSize,
+      };
+    }
+  };
+};
+
+// Helper function to configure video element based on platform
+const configureVideoElement = (videoRef: React.RefObject<HTMLVideoElement>, platform: PlatformType) => {
+  if (!videoRef.current) return;
+
+  videoRef.current.setAttribute('playsinline', '');
+  videoRef.current.setAttribute('muted', '');
+
+  if (platform === 'ios') {
+    videoRef.current.setAttribute('autoplay', '');
+    videoRef.current.style.objectFit = 'cover';
+  } else if (platform === 'android') {
+    videoRef.current.style.transform = 'scaleX(-1)';
+  }
+};
+
+// Component for loading state
+const LoadingState = () => (
+  <div className="flex flex-col items-center justify-center py-8">
+    <Loader2 className="h-8 w-8 animate-spin mb-2" />
+    <p>Initializing camera...</p>
+  </div>
+);
+
+// Component for error state
+const ErrorState = ({ 
+  error, 
+  hasCamera, 
+  cameraPermission, 
+  onRequestPermission, 
+  onTryAgain, 
+  onUploadImage 
+}: {
+  error: string;
+  hasCamera: boolean;
+  cameraPermission: CameraPermission;
+  onRequestPermission: () => void;
+  onTryAgain: () => void;
+  onUploadImage: () => void;
+}) => (
+  <div className="text-red-500 text-center py-4">
+    <p>{error}</p>
+    <div className="flex gap-2 mt-4 justify-center flex-wrap">
+      {hasCamera && cameraPermission !== "granted" && (
+        <Button onClick={onRequestPermission} size="sm">
+          <Camera className="h-4 w-4 mr-1" />
+          Request Camera Permission
+        </Button>
+      )}
+      {hasCamera && cameraPermission === "granted" && (
+        <Button onClick={onTryAgain} size="sm">
+          <Camera className="h-4 w-4 mr-1" />
+          Try Camera Again
+        </Button>
+      )}
+      <Button onClick={onUploadImage} variant="outline" size="sm">
+        <Upload className="h-4 w-4 mr-1" />
+        Upload Image
+      </Button>
+    </div>
+  </div>
+);
+
+// Component for QR code result
+const QRCodeResult = ({ 
+  qrCode, 
+  onProcess, 
+  onScanAgain 
+}: {
+  qrCode: string;
+  onProcess: () => void;
+  onScanAgain: () => void;
+}) => (
+  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 rounded-lg">
+    <div className="bg-white p-4 rounded-lg max-w-xs">
+      <p className="text-sm font-medium mb-2">QR Code Detected:</p>
+      <p className="text-xs break-all mb-4">{qrCode}</p>
+      <div className="flex gap-2">
+        <Button onClick={onProcess} size="sm" className="flex-1">
+          Process
+        </Button>
+        <Button onClick={onScanAgain} size="sm" variant="outline" className="flex-1">
+          Scan Again
+        </Button>
+      </div>
+    </div>
+  </div>
+);
+
 export default function QRScannerPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -15,10 +195,11 @@ export default function QRScannerPage() {
   const [error, setError] = useState<string | null>(null);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [scannerActive, setScannerActive] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [hasCamera, setHasCamera] = useState(true);
-  const [cameraPermission, setCameraPermission] = useState<"granted" | "denied" | "prompt" | null>(null);
   const router = useRouter();
+
+  const { platform, isMobile } = usePlatformDetection();
+  const { cameraPermission, setCameraPermission } = useCameraPermissions();
 
   // Check if device is mobile and camera permissions
   useEffect(() => {
@@ -34,7 +215,7 @@ export default function QRScannerPage() {
       const isIOS = /ipad|iphone|ipod/i.test(userAgent);
       const isAndroid = /android/i.test(userAgent);
 
-      setIsMobile(isMobileDevice || hasTouchScreen);
+      // setIsMobile(isMobileDevice || hasTouchScreen);
       
       // Store platform info for use in other parts of the component
       (window as any).isIOS = isIOS;
@@ -58,8 +239,8 @@ export default function QRScannerPage() {
   }, []);
 
   useEffect(() => {
-    // We'll load the QR scanner library dynamically to avoid SSR issues
-    const loadQRScanner = async () => {
+    // Initialize QR scanner
+    const initializeScanner = async () => {
       try {
         // Dynamically import qr-scanner
         const QrScanner = (await import('qr-scanner')).default;
@@ -146,13 +327,15 @@ export default function QRScannerPage() {
 
           const qrScanner = new QrScanner(
             videoRef.current,
-            (result) => {
+            (result: any) => {
               console.log('decoded qr code:', result);
-              setQrCode(result.data);
+              // Handle both string and object formats for the result
+              const qrData = typeof result === 'string' ? result : result.data;
+              setQrCode(qrData);
               setScannerActive(false);
               qrScanner.stop();
             },
-            scannerOptions
+            scannerOptions as any
           );
 
           // Store the scanner instance for cleanup
@@ -197,7 +380,7 @@ export default function QRScannerPage() {
       }
     };
 
-    const cleanup = loadQRScanner();
+    const cleanup = initializeScanner();
 
     return () => {
       cleanup.then(cleanupFn => cleanupFn && cleanupFn());
@@ -268,13 +451,15 @@ export default function QRScannerPage() {
 
           const qrScanner = new QrScanner(
             videoRef.current,
-            (result) => {
+            (result: any) => {
               console.log('decoded qr code:', result);
-              setQrCode(result.data);
+              // Handle both string and object formats for the result
+              const qrData = typeof result === 'string' ? result : result.data;
+              setQrCode(qrData);
               setScannerActive(false);
               qrScanner.stop();
             },
-            scannerOptions
+            scannerOptions as any
           );
 
           try {
@@ -359,25 +544,25 @@ export default function QRScannerPage() {
       // Platform-specific camera constraints
       let constraints = { video: true };
       
-      if ((window as any).isIOS) {
-        // iOS specific constraints
-        constraints = {
-          video: {
-            facingMode: "environment",
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          }
-        };
-      } else if ((window as any).isAndroid) {
-        // Android specific constraints
-        constraints = {
-          video: {
-            facingMode: "environment",
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        };
-      }
+      // if ((window as any).isIOS) {
+      //   // iOS specific constraints
+      //   constraints = {
+      //     video: {
+      //       facingMode: "environment",
+      //       width: { ideal: 1920 },
+      //       height: { ideal: 1080 }
+      //     }
+      //   };
+      // } else if ((window as any).isAndroid) {
+      //   // Android specific constraints
+      //   constraints = {
+      //     video: {
+      //       facingMode: "environment",
+      //       width: { ideal: 1280 },
+      //       height: { ideal: 720 }
+      //     }
+      //   };
+      // }
       
       // Request camera permissions explicitly with platform-specific constraints
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
