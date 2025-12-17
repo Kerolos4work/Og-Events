@@ -5,6 +5,7 @@ import { UncontrolledReactSVGPanZoom } from 'react-svg-pan-zoom';
 import SeatMapLegendSimple from './legend';
 import ThemeToggle from './ThemeToggle';
 import FullMapButton from './FullMapButton';
+// import { QRScannerButton } from './QRScannerButton';
 import SVGPatterns from './SVGPatterns';
 import Zone from './Zone';
 import { calculateZoneBounds } from './utils/zoneHelpers';
@@ -269,6 +270,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
         />
         <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} />
         <FullMapButton isDarkMode={isDarkMode} onClick={handleFitToViewer} />
+        {/* <QRScannerButton isDarkMode={isDarkMode} /> */}
       </div>
 
       {/* FULL SCREEN MAP */}
