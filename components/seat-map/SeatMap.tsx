@@ -14,6 +14,7 @@ import { useSeatMap, useSeatSelection, useUIState } from './hooks';
 import { LegendItem, GuestForm } from './types';
 import Notification from '../booking/Notifications';
 import { useLanguageContext } from '@/contexts/LanguageContext';
+import LanguageToggle from './LanguageToggle';
 
 interface SeatMapFloatProps {
   planId: string;
@@ -23,19 +24,19 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
   // Initialize hooks
   const Viewer = React.useRef<any>(null);
   const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
-  const { t, isRTL, language } = useLanguageContext();
-  
+  const { t, isRTL, language, changeLanguage } = useLanguageContext();
+
   // Force re-render when language changes
   const [, forceUpdate] = React.useReducer(x => x + 1, 0);
-  
+
   React.useEffect(() => {
     // Listen for language changes
     const handleLanguageChange = () => {
       forceUpdate();
     };
-    
+
     window.addEventListener('languageChange', handleLanguageChange);
-    
+
     return () => {
       window.removeEventListener('languageChange', handleLanguageChange);
     };
@@ -230,17 +231,17 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
       const globalMinY = minY + zone.position_y;
       const globalMaxX = maxX + zone.position_x;
       const globalMaxY = maxY + zone.position_y;
-      
+
       // Calculate center of the zone
       const centerX = (globalMinX + globalMaxX) / 2;
       const centerY = (globalMinY + globalMaxY) / 2;
-      
+
       // Calculate appropriate zoom level to fit the zone
       const zoneWidth = globalMaxX - globalMinX;
       const zoneHeight = globalMaxY - globalMinY;
       const viewerWidth = dimensions.width;
       const viewerHeight = dimensions.height;
-      
+
       // Calculate zoom level to make the zone fill the entire screen
       const scaleX = viewerWidth / zoneWidth;
       const scaleY = viewerHeight / zoneHeight;
@@ -248,7 +249,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
       const newZoomLevel = Math.min(scaleX, scaleY) * 0.95; // Slightly smaller to ensure edges are visible
 
       Viewer.current.setPointOnViewerCenter(centerX, centerY, newZoomLevel);
-      
+
       // Update the zoom level state to trigger rectangle opacity change
       setZoomLevel(newZoomLevel);
     }
@@ -279,15 +280,25 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
       {/* SVG Definitions */}
       <SVGPatterns />
 
-      {/* FLOATING PANEL: LEGEND AND THEME SWITCHER */}
-      <div className={`absolute ${isRTL() ? 'right-4' : 'left-4'} top-4 z-10 flex flex-row gap-3 items-start w-[330px]`}>
-        <SeatMapLegendSimple
-          isDarkMode={isDarkMode}
-          legendItems={legendItems}
-          isCollapsed={legendCollapsed}
-        />
-        <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} />
-        <FullMapButton isDarkMode={isDarkMode} onClick={handleFitToViewer} />
+      {/* FLOATING PANEL: LEGEND AND BUTTONS */}
+      <div className={`absolute p-4 z-10 flex ${isMobile ? 'justify-between w-full' : ' '} flex-row gap-[12px] items-start pointer-events-none`}>
+        <div className="pointer-events-auto w-[200px]">
+          <SeatMapLegendSimple
+            isDarkMode={isDarkMode}
+            legendItems={legendItems}
+            isCollapsed={legendCollapsed}
+          />
+        </div>
+        <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 pointer-events-none`}>
+          <div className="pointer-events-auto"><FullMapButton isDarkMode={isDarkMode} onClick={handleFitToViewer} /></div>
+          <div className="pointer-events-auto"><LanguageToggle
+            isDarkMode={isDarkMode}
+            currentLanguage={language}
+            onToggle={() => changeLanguage(language === 'en' ? 'ar' : 'en')}
+          /></div>
+          <div className="pointer-events-auto"><ThemeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} /></div>
+          
+        </div>
         {/* <QRScannerButton isDarkMode={isDarkMode} /> */}
       </div>
 

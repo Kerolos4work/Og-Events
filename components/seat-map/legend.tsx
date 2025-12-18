@@ -69,14 +69,14 @@ const StatusItem = ({ status, isDarkMode, isRTL }: { status: SeatStatus; isDarkM
 };
 
 // Predefined status items with their icons
-const getSeatStatusItems = (t: Function): SeatStatus[] => {
+const getSeatStatusItems = (t: Function, isDarkMode: boolean): SeatStatus[] => {
   return [
     {
       id: 'booked',
       name: t('booked'),
       icon: (
         <svg width="16" height="16" viewBox="0 0 16 16" className="absolute inset-0">
-          <circle cx="8" cy="8" r="3.5" fill="#ebebeb" stroke="#ebebeb" strokeWidth="0" />
+          <circle cx="8" cy="8" r="3.5" fill={isDarkMode ? "#ebebeb" : "#494949"} stroke={isDarkMode ? "#ebebeb" : "#494949"} strokeWidth="0" />
         </svg>
       ),
     },
@@ -86,14 +86,14 @@ const getSeatStatusItems = (t: Function): SeatStatus[] => {
       icon: (
         <svg width="16" height="16" viewBox="0 0 16 16" className="absolute inset-0">
           {/* Outer ring */}
-          <circle cx="8" cy="8" r="7.2" fill="none" stroke="#ebebeb" strokeWidth="2" />
+          <circle cx="8" cy="8" r="7.2" fill="none" stroke={isDarkMode ? "#ebebeb" : "#494949"} strokeWidth="2" />
           {/* Rotating dashed circle */}
           <circle
             cx="8"
             cy="8"
             r="5.6"
             fill="none"
-            stroke="#ebebeb"
+            stroke={isDarkMode ? "#ebebeb" : "#494949"}
             strokeWidth="1.5"
             strokeDasharray={`${5.6 * Math.PI * 0.2} ${5.6 * Math.PI * 0.8}`}
             transform={`rotate(0 8 8)`}
@@ -109,7 +109,7 @@ const getSeatStatusItems = (t: Function): SeatStatus[] => {
             />
           </circle>
           {/* Pulsing inner circle */}
-          <circle cx="8" cy="8" r="2.4" fill="none" stroke="#ebebeb" strokeWidth="1.5">
+          <circle cx="8" cy="8" r="2.4" fill="none" stroke={isDarkMode ? "#ebebeb" : "#494949"}  strokeWidth="1.5">
             <animate attributeName="r" values="2.4;3.2;2.4" dur="2s" repeatCount="indefinite" />
             <animate
               attributeName="opacity"
@@ -119,7 +119,7 @@ const getSeatStatusItems = (t: Function): SeatStatus[] => {
             />
           </circle>
           {/* Center dot */}
-          <circle cx="8" cy="8" r="1.2" fill="#ebebeb" />
+          <circle cx="8" cy="8" r="1.2" fill={isDarkMode ? "#ebebeb" : "#494949"} />
         </svg>
       ),
     },
@@ -128,11 +128,11 @@ const getSeatStatusItems = (t: Function): SeatStatus[] => {
       name: t('selected'),
       icon: (
         <svg width="16" height="16" viewBox="0 0 16 16" className="absolute inset-0">
-          <circle cx="8" cy="8" r="7" fill="#ebebeb3d" stroke="#ebebeb" strokeWidth="1" />
+          <circle cx="8" cy="8" r="7" fill={isDarkMode ? "#ebebeb3d" : "#4949493d"} stroke={isDarkMode ? "#ebebeb" : "#494949"} strokeWidth="1" />
           <path
             d={`M${-6 * 0.4},${0} L${-6 * 0.15},${6 * 0.3} L${6 * 0.4},${-6 * 0.3}`}
             fill="none"
-            stroke="#ebebeb"
+            stroke={isDarkMode ? "#ebebeb" : "#494949"}
             strokeWidth={6 * 0.15}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -196,7 +196,7 @@ const SeatMapLegendSimple = ({
     setInternalIsCollapsed(!isCollapsed);
   };
   const { t, isRTL } = useLanguageContext();
-  const statusItems = getSeatStatusItems(t);
+  const statusItems = getSeatStatusItems(t, isDarkMode);
 
   return (
     <div
