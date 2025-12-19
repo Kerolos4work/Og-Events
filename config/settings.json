@@ -1,6 +1,6 @@
 {
   "payment": {
-    "mode": "manual",
+    "mode": "online",
     "timeLimit": 7,
     "timeLimitUnit": "seconds",
     "description": "Payment time limit in min (default: 10 minutes)",
