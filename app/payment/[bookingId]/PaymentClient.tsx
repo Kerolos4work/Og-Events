@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { savePendingBooking } from '@/lib/booking-redirect';
 import { useCountdown } from './hooks/useCountdown';
 import { useBookingDetails } from './hooks/useBookingDetails';
@@ -14,9 +15,11 @@ import { useLanguageContext } from '@/contexts/LanguageContext';
 
 interface PaymentClientProps {
     bookingId: string;
+    shouldRedirect?: boolean;
 }
 
-export default function PaymentClient({ bookingId }: PaymentClientProps) {
+export default function PaymentClient({ bookingId, shouldRedirect = false }: PaymentClientProps) {
+    const router = useRouter();
     // Initialize hooks
     const { t } = useLanguageContext();
     const { bookingDetails, loading: detailsLoading, error: detailsError } = useBookingDetails(bookingId);
@@ -31,12 +34,21 @@ export default function PaymentClient({ bookingId }: PaymentClientProps) {
         handleSubmit
     } = usePaymentSubmission(bookingId);
 
-    // Save booking ID to localStorage when component mounts
+    // Handle redirection if needed
     useEffect(() => {
+        if (shouldRedirect) {
+            // Remove pending booking from localStorage
+            localStorage.removeItem('pendingBooking');
+            // Redirect to seat map
+            router.push('/');
+            return;
+        }
+        
+        // Save booking ID to localStorage when component mounts
         if (bookingId) {
             savePendingBooking(bookingId);
         }
-    }, [bookingId]);
+    }, [bookingId, shouldRedirect, router]);
 
     // Handle loading state
     if (!bookingId || detailsLoading) {

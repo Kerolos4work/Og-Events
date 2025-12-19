@@ -90,6 +90,9 @@ export const translations = {
     upload: 'Upload',
     processing: 'Processing...',
     payOnline: 'Pay Online',
+    invalidAmount: 'Invalid payment amount',
+    paymentHashError: 'Failed to generate payment hash',
+    paymentProcessingError: 'An error occurred while processing your payment',
 
     // Booking Confirmation
     bookingConfirmed: 'Booking Confirmed',
@@ -183,6 +186,9 @@ export const translations = {
     upload: 'رفع',
     processing: 'جاري المعالجة...',
     payOnline: 'الدفع عبر الإنترنت',
+    invalidAmount: 'مبلغ الدفع غير صالح',
+    paymentHashError: 'فشل في إنشاء تجزئة الدفع',
+    paymentProcessingError: 'حدث خطأ أثناء معالجة الدفع',
 
     // Booking Confirmation
     bookingConfirmed: 'تم تأكيد الحجز',

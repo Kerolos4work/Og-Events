@@ -23,20 +23,31 @@ export default function ActionButtons({
   handleSubmit,
   bookingId,
   bookingDetails,
-  paymentMode
+  paymentMode,
 }: ActionButtonsProps) {
   const router = useRouter();
   const { t, isRTL } = useLanguageContext();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const handleOnlinePayment = async () => {
-    if (!bookingId || !bookingDetails) return;
+    if (!bookingId || !bookingDetails) {
+      console.error('Missing booking ID or booking details');
+      return;
+    }
 
     setIsProcessingPayment(true);
 
     try {
       // Get the price from booking details, with fallback to 0 if undefined
       const amount = bookingDetails.amount;
+      console.log('Payment amount:', amount, 'Booking ID:', bookingId);
+
+      if (!amount || amount <= 0) {
+        console.error('Invalid payment amount:', amount);
+        setIsProcessingPayment(false);
+        alert(t('invalidAmount') || 'Invalid payment amount');
+        return;
+      }
 
       // Generate hash for the payment
       const response = await fetch('/api/payment/hash', {
@@ -51,11 +62,21 @@ export default function ActionButtons({
         }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error generating payment hash:', errorData);
+        setIsProcessingPayment(false);
+        alert(t('paymentHashError') || 'Failed to generate payment hash');
+        return;
+      }
+
       const data = await response.json();
+      console.log('Payment hash generated:', data);
 
       if (data.error) {
         console.error('Error generating payment hash:', data.error);
         setIsProcessingPayment(false);
+        alert(t('paymentHashError') || 'Failed to generate payment hash');
         return;
       }
 
@@ -86,11 +107,15 @@ export default function ActionButtons({
       paymentUrl.searchParams.append('interactionSource', 'Ecommerce');
       paymentUrl.searchParams.append('enable3DS', 'true');
 
+      // Log the final payment URL for debugging
+      console.log('Redirecting to payment URL:', paymentUrl.toString());
+
       // Redirect to payment page
       window.location.href = paymentUrl.toString();
     } catch (error) {
       console.error('Error processing payment:', error);
       setIsProcessingPayment(false);
+      alert(t('paymentProcessingError') || 'An error occurred while processing your payment');
     }
   };
 
@@ -106,13 +131,13 @@ export default function ActionButtons({
         >
           {isUploading ? (
             <>
-              <div className={`animate-spin rounded-full h-4 w-4 border-b-2 border-white ${isRTL() ? 'ml-2' : 'mr-2'}`}></div>
+              <div
+                className={`animate-spin rounded-full h-4 w-4 border-b-2 border-white ${isRTL() ? 'ml-2' : 'mr-2'}`}
+              ></div>
               {t('uploading')}
             </>
           ) : (
-            <>
-              {t('upload')}
-            </>
+            <>{t('upload')}</>
           )}
         </button>
       )}
@@ -127,7 +152,9 @@ export default function ActionButtons({
         >
           {isProcessingPayment ? (
             <>
-              <div className={`animate-spin rounded-full h-4 w-4 border-b-2 border-white ${isRTL() ? 'ml-2' : 'mr-2'}`}></div>
+              <div
+                className={`animate-spin rounded-full h-4 w-4 border-b-2 border-white ${isRTL() ? 'ml-2' : 'mr-2'}`}
+              ></div>
               {t('processing')}
             </>
           ) : (

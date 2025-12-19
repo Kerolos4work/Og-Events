@@ -16,8 +16,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate the hash
-    const path = `/?payment=${mid}.${orderId}.${amount}.${currency}`;
+    // Generate the hash - updated format for Kashier
+    const path = `?payment=${mid}.${orderId}.${amount}.${currency}`;
     const hash = crypto.createHmac('sha256', secret).update(path).digest('hex');
 
     return NextResponse.json({ hash });
