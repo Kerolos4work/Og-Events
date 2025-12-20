@@ -54,7 +54,7 @@ export default function ActionButtons({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
         body: JSON.stringify({
           amount: amount,
@@ -96,7 +96,11 @@ export default function ActionButtons({
       paymentUrl.searchParams.append('hash', data.hash);
       paymentUrl.searchParams.append('mode', 'test'); // Change to 'live' for production
       paymentUrl.searchParams.append('merchantRedirect', `${origin}/payment/success`);
-      paymentUrl.searchParams.append('serverWebhook', `${baseUrl}/api/payment/webhook`);
+      // paymentUrl.searchParams.append('serverWebhook', `${baseUrl}/api/payment/webhook/`);
+      paymentUrl.searchParams.append(
+        'serverWebhook',
+        'https://nonadjectivally-hotheaded-rosita.ngrok-free.dev/api/payment/webhook/'
+      );
       paymentUrl.searchParams.append('paymentRequestId', `req_${Date.now()}`);
       paymentUrl.searchParams.append('allowedMethods', 'card,instapay,fawry,wallet');
       paymentUrl.searchParams.append('defaultMethod', 'wallet');
