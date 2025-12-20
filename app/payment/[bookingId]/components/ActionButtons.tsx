@@ -83,7 +83,7 @@ export default function ActionButtons({
       }
 
       // Build the payment URL with all required parameters
-      const merchantId = process.env.NEXT_PUBLIC_KASHIER_MERCHANT_ID || 'MID-41460-868';
+      const merchantId = process.env.NEXT_PUBLIC_KASHIER_MERCHANT_ID || '';
       const paymentUrl = new URL('https://payments.kashier.io/');
 
       const origin = window.location.origin;
@@ -94,24 +94,16 @@ export default function ActionButtons({
       paymentUrl.searchParams.append('amount', amount.toString());
       paymentUrl.searchParams.append('currency', 'EGP');
       paymentUrl.searchParams.append('hash', data.hash);
-      paymentUrl.searchParams.append('mode', 'test'); // Change to 'live' for production
-      paymentUrl.searchParams.append('merchantRedirect', `${origin}/payment/success-Remove`);
-      // paymentUrl.searchParams.append('serverWebhook', `${baseUrl}/api/payment/webhook/`);
-      paymentUrl.searchParams.append(
-        'serverWebhook',
-        'https://nonadjectivally-hotheaded-rosita.ngrok-free.dev/api/payment/webhook/'
-      );
+      paymentUrl.searchParams.append('mode', process.env.NEXT_PUBLIC_KASHIER_MODE || '');
+      paymentUrl.searchParams.append('merchantRedirect', `${origin}/payment/success`);
+      paymentUrl.searchParams.append('serverWebhook', `${baseUrl}/api/payment/webhook/`);
       paymentUrl.searchParams.append('paymentRequestId', `req_${Date.now()}`);
       paymentUrl.searchParams.append('allowedMethods', 'card,instapay,fawry,wallet');
       paymentUrl.searchParams.append('defaultMethod', 'wallet');
       paymentUrl.searchParams.append('failureRedirect', `${origin}/payment/failure`);
       paymentUrl.searchParams.append('redirectMethod', 'GET');
       paymentUrl.searchParams.append('brandColor', '#4F46E5');
-      paymentUrl.searchParams.append('display', 'en');
-      paymentUrl.searchParams.append('manualCapture', 'false');
-      paymentUrl.searchParams.append('saveCard', 'false');
-      paymentUrl.searchParams.append('interactionSource', 'Ecommerce');
-      paymentUrl.searchParams.append('enable3DS', 'true');
+      paymentUrl.searchParams.append('display', isRTL() ? 'ar' : 'en');
 
       // Log the final payment URL for debugging
       console.log('Redirecting to payment URL:', paymentUrl.toString());

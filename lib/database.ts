@@ -14,7 +14,10 @@ export async function getBookingStatus(bookingId: string): Promise<string | null
       .single();
 
     if (error) {
-      console.error('Error fetching booking status:', error);
+      // Check if error is just an empty object
+      if (error && Object.keys(error).length > 0) {
+        console.error('Error fetching booking status:', error);
+      }
       return null;
     }
 

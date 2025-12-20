@@ -13,7 +13,7 @@ export const SUPPORTED_LANGUAGES = {
   zh: '中文',
   ja: '日本語',
   ko: '한국어',
-  ar: 'العربية'
+  ar: 'العربية',
 };
 
 // Define the languages that use RTL layout
@@ -38,7 +38,8 @@ export const translations = {
     save: 'Save',
     back: 'Back',
     next: 'Next',
-    bookingHoldMessage: 'Seats held for 60 minutes. Please upload payment proof to complete your booking.',
+    bookingHoldMessage:
+      'Seats held for 60 minutes. Please upload payment proof to complete your booking.',
 
     // Seat Map
     selectSeats: 'Select Seats',
@@ -55,7 +56,7 @@ export const translations = {
     currency: 'EGP',
     name: 'Name',
     email: 'Email',
-    phone: 'Phone',
+    phone: 'Whatsapp Phone',
     bookingProgress: 'Booking...',
     bookNow: 'Book Now',
     zone: 'Zone',
@@ -81,7 +82,8 @@ export const translations = {
     transferTo: 'Transfer to',
     accountNumber: 'Account Number',
     accountName: 'Account Name',
-    uploadPaymentConfirmation: 'After completing your transfer, please upload a clear screenshot of your payment confirmation',
+    uploadPaymentConfirmation:
+      'After completing your transfer, please upload a clear screenshot of your payment confirmation',
     convertingImage: 'Converting image...',
     clickToUpload: 'Click to upload',
     orDragAndDrop: 'or drag and drop',
@@ -101,10 +103,11 @@ export const translations = {
     ticketDetails: 'Ticket Details',
     downloadTicket: 'Download Ticket',
     emailTicket: 'Email Ticket',
-    
+
     // Payment Page
     bookingExpired: 'Time expired. Your booking has been released.',
-    cancelBookingConfirm: 'Are you sure you want to cancel this booking? This action cannot be undone.',
+    cancelBookingConfirm:
+      'Are you sure you want to cancel this booking? This action cannot be undone.',
     cancelBookingFailed: 'Failed to cancel booking. Please try again.',
     cancelBookingError: 'An error occurred while cancelling the booking.',
     cancelling: 'Cancelling...',
@@ -113,7 +116,8 @@ export const translations = {
     guestUser: 'Guest User',
     timeLeft: 'Time Left',
     paymentProofSubmitted: 'Payment Proof Submitted',
-    paymentProofSubmittedMessage: 'Your payment proof has been submitted successfully. Your booking is now pending admin approval.',
+    paymentProofSubmittedMessage:
+      'Your payment proof has been submitted successfully. Your booking is now pending admin approval.',
     redirectingToConfirmation: 'Redirecting to confirmation page...',
   },
 
@@ -151,7 +155,7 @@ export const translations = {
     currency: 'ج . م',
     name: 'الاسم',
     email: 'البريد الإلكتروني',
-    phone: 'رقم الهاتف',
+    phone: 'رقم الواتساب',
     bookingProgress: 'جاري الحجز...',
     bookNow: 'احجز الآن',
     zone: 'المنطقة',
@@ -197,7 +201,7 @@ export const translations = {
     ticketDetails: 'تفاصيل التذكرة',
     downloadTicket: 'تحميل التذكرة',
     emailTicket: 'إرسال التذكرة بالبريد',
-    
+
     // Payment Page
     bookingExpired: 'انتهى الوقت. تم إلغاء حجزك.',
     cancelBookingConfirm: 'هل أنت متأكد من إلغاء هذا الحجز؟ لا يمكن التراجع عن هذا الإجراء.',

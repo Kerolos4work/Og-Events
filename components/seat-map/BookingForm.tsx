@@ -327,7 +327,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                   {...register('phone')}
                   type="tel"
                   className={`${getInputClasses(!!errors.phone)} ${isRTL() ? 'text-right' : ''}`}
-                  placeholder={t('WhatsApp phone')}
+                  placeholder={t('phone')}
                   dir={isRTL() ? 'rtl' : 'ltr'}
                 />
               </div>
