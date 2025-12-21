@@ -3,6 +3,7 @@ import { Seat, GuestForm } from '../types';
 import { createGuestBooking } from '../services';
 import { uploadFile } from '@/lib/storage';
 import { savePendingBooking } from '@/lib/booking-redirect';
+import { addOrderId } from '@/lib/orderIdsManager';
 import { MAX_SEATS_PER_BOOKING, MIN_SEATS_PER_BOOKING, ERROR_MESSAGES } from '../constants';
 
 interface UseSeatSelectionReturn {
@@ -119,6 +120,8 @@ export const useSeatSelection = (
           if (data.booking_id) {
             // Save the booking ID to localStorage before redirecting
             savePendingBooking(data.booking_id);
+            // Also add the booking ID to the userOrderIds list
+            addOrderId(data.booking_id);
             window.location.href = `/payment/${data.booking_id}`;
           }
 

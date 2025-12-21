@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -290,7 +291,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
             isCollapsed={legendCollapsed}
           />
         </div>
-        <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 pointer-events-none ${isMobile ? 'absolute right-4 top-4' : ''}`}>
+        <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 pointer-events-none`}>
           <div className="pointer-events-auto"><FullMapButton isDarkMode={isDarkMode} onClick={handleFitToViewer} /></div>
           <div className="pointer-events-auto"><OrdersButton isDarkMode={isDarkMode} /></div>
           <div className="pointer-events-auto"><LanguageToggle
@@ -299,7 +300,7 @@ const SeatMapFloat: React.FC<SeatMapFloatProps> = ({ planId }) => {
             onToggle={() => changeLanguage(language === 'en' ? 'ar' : 'en')}
           /></div>
           <div className="pointer-events-auto"><ThemeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} /></div>
-          
+
         </div>
         {/* <QRScannerButton isDarkMode={isDarkMode} /> */}
       </div>
