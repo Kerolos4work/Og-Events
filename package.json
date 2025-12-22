@@ -6,6 +6,7 @@
     "dev:clean": "node clean-and-start.js",
     "dev:no-sourcemaps": "node start-without-sourcemaps.js",
     "build": "next build",
+    "build:turbo": "turbo run build",
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
