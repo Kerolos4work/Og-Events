@@ -2,174 +2,283 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, ArrowLeft, Copy, Check, AlertCircle, RefreshCw } from 'lucide-react';
+import { Camera, ArrowLeft, Check, AlertCircle, RefreshCw, Users, Settings, LogIn, LogOut, Home } from 'lucide-react';
 import QrScanner from 'qr-scanner';
+import { createClient } from '@supabase/supabase-js';
+
+type TabType = 'checkin' | 'checkout' | 'attendees' | 'settings';
 
 export default function QRScannerPage() {
     const router = useRouter();
     const videoRef = useRef<HTMLVideoElement>(null);
     const qrScannerRef = useRef<QrScanner | null>(null);
 
+    const [activeTab, setActiveTab] = useState<TabType>('checkin');
     const [scanning, setScanning] = useState(false);
     const [result, setResult] = useState<string>('');
     const [error, setError] = useState<string>('');
-    const [copied, setCopied] = useState(false);
+    const [checkInMessage, setCheckInMessage] = useState<string>('');
+    const [checkInSuccess, setCheckInSuccess] = useState<boolean>(false);
+
+    // Attendees tab state
+    const [seats, setSeats] = useState<any[]>([]);
+    const [loadingSeats, setLoadingSeats] = useState(true);
+    const [checkedInExpanded, setCheckedInExpanded] = useState(true);
+    const [checkedOutExpanded, setCheckedOutExpanded] = useState(false);
+    const [notArrivedExpanded, setNotArrivedExpanded] = useState(false);
+
+    // Initialize Supabase client
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    // Use either the PUBLISHABLE_KEY or ANON_KEY
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+    const supabase = createClient(
+        supabaseUrl || '',
+        supabaseKey || ''
+    );
     const [hasCamera, setHasCamera] = useState(true);
     const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
 
     useEffect(() => {
-        const initScanner = async () => {
-            if (!videoRef.current) return;
+        // Clean up any existing scanner before initializing
+        if (qrScannerRef.current) {
+            qrScannerRef.current.stop();
+            qrScannerRef.current.destroy();
+            qrScannerRef.current = null;
+        }
 
-            try {
-                // Check if camera is available
-                const hasCamera = await QrScanner.hasCamera();
-                setHasCamera(hasCamera);
+        if (activeTab === 'checkin' || activeTab === 'checkout') {
+            initScanner();
+        } else {
+            // Stop scanner when not on scanning tabs
+            setScanning(false);
+        }
 
-                if (!hasCamera) {
-                    setError('No camera found on this device');
-                    return;
-                }
-
-                // Create QR Scanner instance
-                const qrScanner = new QrScanner(
-                    videoRef.current,
-                    (result) => {
-                        setResult(result.data);
-                        qrScanner.stop();
-                        setScanning(false);
-                    },
-                    {
-                        returnDetailedScanResult: true,
-                        highlightScanRegion: true,
-                        highlightCodeOutline: true,
-                        preferredCamera: facingMode,
-                    }
-                );
-
-                qrScannerRef.current = qrScanner;
-
-                // Start scanning
-                await qrScanner.start();
-                setScanning(true);
-                setError('');
-            } catch (err) {
-                console.error('Scanner initialization error:', err);
-                if (err instanceof Error) {
-                    if (err.name === 'NotAllowedError') {
-                        setError('Camera permission denied. Please allow camera access to scan QR codes.');
-                    } else if (err.name === 'NotFoundError') {
-                        setError('No camera found on this device.');
-                    } else if (err.name === 'NotReadableError') {
-                        setError('Camera is already in use by another application.');
-                    } else {
-                        setError('Failed to access camera. Please try again.');
-                    }
-                } else {
-                    setError('An unexpected error occurred.');
-                }
-                setScanning(false);
-            }
-        };
-
-        initScanner();
-
-        // Cleanup
         return () => {
             if (qrScannerRef.current) {
                 qrScannerRef.current.stop();
                 qrScannerRef.current.destroy();
+                qrScannerRef.current = null;
             }
         };
-    }, [facingMode]);
+    }, [activeTab]);
 
-    const handleCopyResult = async () => {
-        if (result) {
+    // Fetch seats for attendees tab
+    useEffect(() => {
+        const fetchSeats = async () => {
             try {
-                await navigator.clipboard.writeText(result);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
+                const { data, error } = await supabase
+                    .from('seats')
+                    .select(`
+                        id,
+                        seat_number,
+                        zone,
+                        row,
+                        check_in:"Check-in",
+                        check_in_time:"Check-in Time",
+                        booking_id,
+                        bookings (
+                            name,
+                            email,
+                            phone
+                        )
+                    `)
+                    .not('booking_id', 'is', null)
+                    .order('"Check-in"', { ascending: false })
+                    .order('seat_number', { ascending: true });
+
+                if (error) {
+                    console.error('Error fetching seats:', error);
+                } else {
+                    setSeats(data || []);
+                }
             } catch (err) {
-                console.error('Failed to copy:', err);
+                console.error('Error in fetchSeats:', err);
+            } finally {
+                setLoadingSeats(false);
             }
+        };
+
+        if (activeTab === 'attendees') {
+            setLoadingSeats(true);
+            fetchSeats();
+            // Refresh every 5 seconds
+            const interval = setInterval(fetchSeats, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [activeTab]);
+
+    const initScanner = async () => {
+        if (!videoRef.current) return;
+
+        // Reset scanning state
+        setScanning(false);
+        setError('');
+
+        try {
+            // Check if camera is available
+            const hasCamera = await QrScanner.hasCamera();
+            setHasCamera(hasCamera);
+
+            if (!hasCamera) {
+                setError('No camera found on this device');
+                return;
+            }
+
+            // Create QR Scanner instance
+            const qrScanner = new QrScanner(
+                videoRef.current,
+                async (result) => {
+                    setResult(result.data);
+                    qrScanner.stop();
+                    setScanning(false);
+
+                    // If on checkin tab, call the check_in function
+                    if (activeTab === 'checkin') {
+                        try {
+                            // Call the check_in database function with seat UUID
+                            const { data, error } = await supabase.rpc('check_in', {
+                                seat_uuid: result.data
+                            });
+
+                            if (error) {
+                                console.error('Error checking in:', error);
+                                setCheckInMessage(error.message || 'Failed to check in. Please try again.');
+                                setCheckInSuccess(false);
+                            } else {
+                                setCheckInMessage('Successfully checked in!');
+                                setCheckInSuccess(true);
+                            }
+                        } catch (err) {
+                            console.error('Error calling check_in function:', err);
+                            setCheckInMessage('An unexpected error occurred. Please try again.');
+                            setCheckInSuccess(false);
+                        }
+                    } else if (activeTab === 'checkout') {
+                        try {
+                            // Call the check_out database function with seat UUID
+                            const { data, error } = await supabase.rpc('check_out', {
+                                seat_uuid: result.data
+                            });
+
+                            if (error) {
+                                console.error('Error checking out:', error);
+                                setCheckInMessage(error.message || 'Failed to check out. Please try again.');
+                                setCheckInSuccess(false);
+                            } else {
+                                setCheckInMessage('Successfully checked out!');
+                                setCheckInSuccess(true);
+                            }
+                        } catch (err) {
+                            console.error('Error calling check_out function:', err);
+                            setCheckInMessage('An unexpected error occurred. Please try again.');
+                            setCheckInSuccess(false);
+                        }
+                    }
+                },
+                {
+                    returnDetailedScanResult: true,
+                    highlightScanRegion: true,
+                    highlightCodeOutline: true,
+                    preferredCamera: facingMode,
+                }
+            );
+
+            qrScannerRef.current = qrScanner;
+
+            // Start scanning
+            await qrScanner.start();
+            setScanning(true);
+            setError('');
+        } catch (err) {
+            console.error('Scanner initialization error:', err);
+            if (err instanceof Error) {
+                if (err.name === 'NotAllowedError') {
+                    setError('Camera permission denied. Please allow camera access to scan QR codes.');
+                } else if (err.name === 'NotFoundError') {
+                    setError('No camera found on this device.');
+                } else if (err.name === 'NotReadableError') {
+                    setError('Camera is already in use by another application.');
+                } else {
+                    setError('Failed to access camera. Please try again.');
+                }
+            } else {
+                setError('An unexpected error occurred.');
+            }
+            setScanning(false);
         }
     };
 
     const handleScanAgain = async () => {
         setResult('');
         setError('');
-        setCopied(false);
+        setCheckInMessage('');
+        setCheckInSuccess(false);
 
+        // Destroy the old scanner instance and create a new one
         if (qrScannerRef.current) {
-            try {
-                await qrScannerRef.current.start();
-                setScanning(true);
-            } catch (err) {
-                console.error('Failed to restart scanner:', err);
-                setError('Failed to restart camera. Please refresh the page.');
-            }
+            qrScannerRef.current.destroy();
+            qrScannerRef.current = null;
         }
+
+        // Force a tab switch to reset the scanner
+        const currentTab = activeTab;
+        setActiveTab('settings');
+
+        // Wait a moment for the cleanup to complete
+        setTimeout(async () => {
+            // Switch back to the original tab
+            setActiveTab(currentTab);
+        }, 100);
     };
 
-    const handleFlipCamera = () => {
+    const handleFlipCamera = async () => {
+        // Stop current scanner
+        if (qrScannerRef.current) {
+            qrScannerRef.current.stop();
+            qrScannerRef.current.destroy();
+            qrScannerRef.current = null;
+        }
+
+        // Toggle camera mode
         setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
+
+        // Re-initialize scanner with new camera mode
+        setTimeout(async () => {
+            await initScanner();
+        }, 100);
     };
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-            {/* Header */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-                <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <button
-                        onClick={() => router.back()}
-                        className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                    >
-                        <ArrowLeft className="h-5 w-5" />
-                        <span className="font-medium">Back</span>
-                    </button>
-                    <h1 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <Camera className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                        QR Scanner
-                    </h1>
-                    <button
-                        onClick={handleFlipCamera}
-                        disabled={!scanning || !hasCamera}
-                        className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    >
-                        <RefreshCw className="h-5 w-5" />
-                    </button>
+    const getTabColor = () => {
+        return activeTab === 'checkin' ? 'green' : 'red';
+    };
+
+    const getTabIcon = () => {
+        return activeTab === 'checkin' ? <LogIn className="h-6 w-6" /> : <LogOut className="h-6 w-6" />;
+    };
+
+    const getTabTitle = () => {
+        return activeTab === 'checkin' ? 'Check In' : 'Check Out';
+    };
+
+    const renderScannerTab = () => {
+        return (
+            <div className="flex flex-col h-full px-4 pt-4">
+                {/* Status Card */}
+                <div className={`text-center py-6 px-6 rounded-2xl bg-${getTabColor()}-500 text-white shadow-lg mb-6 mx-auto max-w-sm w-full`}>
+                    <div className="flex items-center justify-center gap-3 mb-3">
+                        {getTabIcon()}
+                        <h1 className="text-2xl font-bold">{getTabTitle()}</h1>
+                    </div>
+                    <p className="text-sm opacity-90">
+                        {scanning ? `Scanning for ${getTabTitle().toLowerCase()}...` : 'Ready to scan'}
+                    </p>
                 </div>
-            </div>
 
-            {/* Main Content */}
-            <div className="pt-20 pb-8 px-4">
-                <div className="max-w-2xl mx-auto">
-                    {/* Instructions */}
+                {/* Camera Preview */}
+                <div className="flex-1 relative flex items-center justify-center pb-6">
                     {!result && !error && (
-                        <div className="mb-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/30 shadow-lg">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                                How to scan
-                            </h2>
-                            <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-                                <li className="flex items-start gap-2">
-                                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">1.</span>
-                                    <span>Allow camera access when prompted</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">2.</span>
-                                    <span>Point your camera at a QR code</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">3.</span>
-                                    <span>The QR code will be scanned automatically</span>
-                                </li>
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* Camera Preview */}
-                    {!result && !error && (
-                        <div className="relative rounded-3xl overflow-hidden shadow-2xl bg-black aspect-[3/4] max-w-md mx-auto">
+                        <div className="relative w-72 h-72 bg-black rounded-3xl overflow-hidden shadow-2xl">
                             <video
                                 ref={videoRef}
                                 className="w-full h-full object-cover"
@@ -177,50 +286,57 @@ export default function QRScannerPage() {
                                 muted
                             />
 
-                            {/* Scanning Overlay */}
+                            {/* Scanning Overlay - covers the entire video */}
                             {scanning && (
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="relative w-64 h-64">
-                                        {/* Animated corners */}
-                                        <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-indigo-500 rounded-tl-2xl animate-pulse" />
-                                        <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-indigo-500 rounded-tr-2xl animate-pulse" />
-                                        <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-indigo-500 rounded-bl-2xl animate-pulse" />
-                                        <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-indigo-500 rounded-br-2xl animate-pulse" />
+                                    {/* Animated corners - positioned at the edges of the scan area */}
+                                    <div className={`absolute top-6 left-6 w-10 h-10 border-t-4 border-l-4 border-${getTabColor()}-500 rounded-tl-xl animate-pulse`} />
+                                    <div className={`absolute top-6 right-6 w-10 h-10 border-t-4 border-r-4 border-${getTabColor()}-500 rounded-tr-xl animate-pulse`} />
+                                    <div className={`absolute bottom-6 left-6 w-10 h-10 border-b-4 border-l-4 border-${getTabColor()}-500 rounded-bl-xl animate-pulse`} />
+                                    <div className={`absolute bottom-6 right-6 w-10 h-10 border-b-4 border-r-4 border-${getTabColor()}-500 rounded-br-xl animate-pulse`} />
 
-                                        {/* Scanning line animation */}
-                                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent animate-scan" />
-                                    </div>
+                                    {/* Scanning line animation */}
+                                    <div className={`absolute top-6 left-6 right-6 h-0.5 bg-gradient-to-r from-transparent via-${getTabColor()}-500 to-transparent animate-scan`} />
                                 </div>
                             )}
 
                             {/* Loading indicator */}
                             {!scanning && hasCamera && !error && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-2xl">
                                     <div className="text-white text-center">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent mx-auto mb-3" />
+                                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mx-auto mb-3" />
                                         <p className="font-medium">Initializing camera...</p>
                                     </div>
                                 </div>
                             )}
+
+                            {/* Flip Camera Button */}
+                            <button
+                                onClick={handleFlipCamera}
+                                disabled={!scanning || !hasCamera}
+                                className="absolute top-4 right-4 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <RefreshCw className="h-5 w-5" />
+                            </button>
                         </div>
                     )}
 
                     {/* Error Display */}
                     {error && (
-                        <div className="max-w-md mx-auto">
-                            <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-8 text-center shadow-lg">
+                        <div className="h-full flex items-center justify-center p-6">
+                            <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-8 text-center shadow-lg max-w-sm w-full">
                                 <div className="bg-red-100 dark:bg-red-900/30 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                                     <AlertCircle className="h-12 w-12 text-red-500 dark:text-red-400" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                                    Unable to Access Camera
+                                    Camera Error
                                 </h3>
                                 <p className="text-gray-700 dark:text-gray-300 mb-6">
                                     {error}
                                 </p>
                                 <button
                                     onClick={() => window.location.reload()}
-                                    className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-md"
+                                    className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-3 px-6 rounded-xl transition-all"
                                 >
                                     Try Again
                                 </button>
@@ -230,75 +346,445 @@ export default function QRScannerPage() {
 
                     {/* Result Display */}
                     {result && (
-                        <div className="max-w-md mx-auto">
-                            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl border border-green-200 dark:border-green-800">
+                        <div className="flex-1 flex items-center justify-center px-4 pb-6">
+                            <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-2xl max-w-sm w-full">
                                 {/* Success Animation */}
                                 <div className="relative mb-6">
-                                    <div className="absolute inset-0 bg-green-100 dark:bg-green-900/30 rounded-full animate-ping opacity-20" />
-                                    <div className="relative bg-green-100 dark:bg-green-900/30 rounded-full p-4 mx-auto w-20 h-20 flex items-center justify-center">
-                                        <Check className="h-12 w-12 text-green-500 dark:text-green-400" />
+                                    <div className={`absolute inset-0 bg-${getTabColor()}-100 dark:bg-${getTabColor()}-900/30 rounded-full animate-ping opacity-20`} />
+                                    <div className={`relative bg-${getTabColor()}-100 dark:bg-${getTabColor()}-900/30 rounded-full p-4 mx-auto w-20 h-20 flex items-center justify-center`}>
+                                        <Check className={`h-12 w-12 text-${getTabColor()}-500 dark:text-${getTabColor()}-400`} />
                                     </div>
                                 </div>
 
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 text-center">
-                                    QR Code Scanned!
+                                    {checkInSuccess ? 'Check-in Successful!' : 'Check-in Failed'}
                                 </h3>
 
-                                {/* Result Content */}
-                                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 mb-6 border border-gray-200 dark:border-gray-700">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">
-                                        Scanned Data:
-                                    </p>
-                                    <p className="text-gray-900 dark:text-white break-all font-mono text-sm">
-                                        {result}
-                                    </p>
-                                </div>
+                                {/* Check-in Message */}
+                                {checkInMessage && (
+                                    <div className={`rounded-xl p-4 mb-6 border ${checkInSuccess ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'}`}>
+                                        <p className={`text-sm ${checkInSuccess ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
+                                            {checkInMessage}
+                                        </p>
+                                    </div>
+                                )}
 
-                                {/* Action Buttons */}
-                                <div className="space-y-3">
-                                    <button
-                                        onClick={handleCopyResult}
-                                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-md flex items-center justify-center gap-2"
-                                    >
-                                        {copied ? (
-                                            <>
-                                                <Check className="h-5 w-5" />
-                                                Copied!
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Copy className="h-5 w-5" />
-                                                Copy to Clipboard
-                                            </>
-                                        )}
-                                    </button>
+                                {/* Result Content - Only show seat ID if check-in was successful */}
+                                {checkInSuccess && (
+                                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 mb-6 border border-gray-200 dark:border-gray-700">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">
+                                            Seat ID:
+                                        </p>
+                                        <p className="text-gray-900 dark:text-white break-all font-mono text-sm">
+                                            {result}
+                                        </p>
+                                    </div>
+                                )}
 
-                                    <button
-                                        onClick={handleScanAgain}
-                                        className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-3 px-6 rounded-xl transition-all shadow-md"
-                                    >
-                                        Scan Another QR Code
-                                    </button>
-                                </div>
+                                {/* Action Button */}
+                                <button
+                                    onClick={handleScanAgain}
+                                    className={`w-full bg-gradient-to-r from-${getTabColor()}-500 to-${getTabColor()}-600 hover:from-${getTabColor()}-600 hover:to-${getTabColor()}-700 text-white font-medium py-4 px-6 rounded-2xl transition-all transform hover:scale-105 active:scale-95 shadow-lg`}
+                                >
+                                    Continue
+                                </button>
                             </div>
                         </div>
                     )}
                 </div>
             </div>
+        );
+    };
+
+    const renderAttendeesTab = () => {
+        const checkedInSeats = seats.filter(seat => seat.check_in === true);
+        const checkedOutSeats = seats.filter(seat => seat.check_in === false);
+        const notArrivedSeats = seats.filter(seat => seat.check_in === null);
+        const totalSeats = seats.length;
+        const checkedInCount = checkedInSeats.length;
+        const checkedOutCount = checkedOutSeats.length;
+        const notArrivedCount = notArrivedSeats.length;
+
+        return (
+            <div className="flex flex-col h-full p-6">
+                <div className="flex items-center gap-2 mb-4">
+                    <Users className="h-6 w-6 text-indigo-600" />
+                    <h1 className="text-2xl font-bold">Attendee List</h1>
+                </div>
+
+                {/* Summary Widgets */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg p-2.5 shadow-lg">
+                        <div className="text-center">
+                            <div className="text-xl font-bold mb-0.5">
+                                {checkedInCount} <span className="text-sm opacity-80">/ {totalSeats}</span>
+                            </div>
+                            <div className="text-xs opacity-90">
+                                Checked In
+                            </div>
+                            <div className="mt-1.5 bg-white/20 rounded-full h-1.5 overflow-hidden">
+                                <div
+                                    className="bg-white h-full transition-all duration-500 ease-out"
+                                    style={{ width: `${totalSeats > 0 ? (checkedInCount / totalSeats) * 100 : 0}%` }}
+                                />
+                            </div>
+                            <div className="mt-1 text-xs opacity-75">
+                                {totalSeats > 0 ? Math.round((checkedInCount / totalSeats) * 100) : 0}%
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-2.5 shadow-lg">
+                        <div className="text-center">
+                            <div className="text-xl font-bold mb-0.5">
+                                {notArrivedCount}
+                            </div>
+                            <div className="text-xs opacity-90">
+                                Not Arrived
+                            </div>
+                            <div className="mt-1.5 bg-white/20 rounded-full h-1.5 overflow-hidden">
+                                <div
+                                    className="bg-white h-full transition-all duration-500 ease-out"
+                                    style={{ width: `${totalSeats > 0 ? (notArrivedCount / totalSeats) * 100 : 0}%` }}
+                                />
+                            </div>
+                            <div className="mt-1 text-xs opacity-75">
+                                {totalSeats > 0 ? Math.round((notArrivedCount / totalSeats) * 100) : 0}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Attendees List */}
+                <div className="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-auto">
+                    {loadingSeats ? (
+                        <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent mx-auto mb-4" />
+                            <p className="text-gray-500">Loading attendees...</p>
+                        </div>
+                    ) : totalSeats === 0 ? (
+                        <div className="text-center py-12 px-4">
+                            <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                            <p className="text-gray-500">No attendees found</p>
+                            <p className="text-sm text-gray-400 mt-2">Attendees will appear here after booking</p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                            {/* Checked In Section */}
+                            <div>
+                                <button
+                                    onClick={() => setCheckedInExpanded(!checkedInExpanded)}
+                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-2">
+                                            <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                                                Checked In
+                                            </h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                {checkedInCount} attendee{checkedInCount !== 1 ? 's' : ''}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <svg
+                                        className={`h-5 w-5 text-gray-400 transition-transform ${checkedInExpanded ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                {checkedInExpanded && (
+                                    <div className="bg-gray-50 dark:bg-gray-900/30">
+                                        {checkedInSeats.length === 0 ? (
+                                            <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                                                No attendees checked in yet
+                                            </div>
+                                        ) : (
+                                            <div className="divide-y divide-gray-200 dark:divide-gray-700/50">
+                                                {checkedInSeats.map((seat) => (
+                                                    <div key={seat.id} className="px-4 py-3 hover:bg-white dark:hover:bg-gray-800/50 transition-colors">
+                                                        <div className="flex items-start justify-between">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-medium text-gray-900 dark:text-white truncate">
+                                                                    {seat.bookings?.name || 'Unknown'}
+                                                                </p>
+                                                                {seat.bookings?.phone && (
+                                                                    <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                                                                        {seat.bookings.phone}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-shrink-0 ml-3 text-right">
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    {seat.zone} . {seat.row} . {seat.seat_number}
+                                                                </p>
+                                                                {seat.check_in_time && (
+                                                                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                                                                        {new Date(seat.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Checked Out Section */}
+                            <div>
+                                <button
+                                    onClick={() => setCheckedOutExpanded(!checkedOutExpanded)}
+                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-orange-100 dark:bg-orange-900/30 rounded-full p-2">
+                                            <LogOut className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                                                Checked Out
+                                            </h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                {checkedOutCount} attendee{checkedOutCount !== 1 ? 's' : ''}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <svg
+                                        className={`h-5 w-5 text-gray-400 transition-transform ${checkedOutExpanded ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                {checkedOutExpanded && (
+                                    <div className="bg-gray-50 dark:bg-gray-900/30">
+                                        {checkedOutSeats.length === 0 ? (
+                                            <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                                                No attendees have checked out yet
+                                            </div>
+                                        ) : (
+                                            <div className="divide-y divide-gray-200 dark:divide-gray-700/50">
+                                                {checkedOutSeats.map((seat) => (
+                                                    <div key={seat.id} className="px-4 py-3 hover:bg-white dark:hover:bg-gray-800/50 transition-colors">
+                                                        <div className="flex items-start justify-between">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-medium text-gray-900 dark:text-white truncate">
+                                                                    {seat.bookings?.name || 'Unknown'}
+                                                                </p>
+                                                                {seat.bookings?.phone && (
+                                                                    <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                                                                        {seat.bookings.phone}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-shrink-0 ml-3 text-right">
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    {seat.zone} . {seat.row} . {seat.seat_number}
+                                                                </p>
+                                                                {seat.check_in_time && (
+                                                                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                                                                        {new Date(seat.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Not Arrived Section */}
+                            <div>
+                                <button
+                                    onClick={() => setNotArrivedExpanded(!notArrivedExpanded)}
+                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-gray-100 dark:bg-gray-700 rounded-full p-2">
+                                            <AlertCircle className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                                                Not Arrived
+                                            </h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                {notArrivedCount} attendee{notArrivedCount !== 1 ? 's' : ''}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <svg
+                                        className={`h-5 w-5 text-gray-400 transition-transform ${notArrivedExpanded ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                {notArrivedExpanded && (
+                                    <div className="bg-gray-50 dark:bg-gray-900/30">
+                                        {notArrivedSeats.length === 0 ? (
+                                            <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                                                All attendees have arrived!
+                                            </div>
+                                        ) : (
+                                            <div className="divide-y divide-gray-200 dark:divide-gray-700/50">
+                                                {notArrivedSeats.map((seat) => (
+                                                    <div key={seat.id} className="px-4 py-3 hover:bg-white dark:hover:bg-gray-800/50 transition-colors">
+                                                        <div className="flex items-start justify-between">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-medium text-gray-900 dark:text-white truncate">
+                                                                    {seat.bookings?.name || 'Unknown'}
+                                                                </p>
+                                                                {seat.bookings?.phone && (
+                                                                    <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                                                                        {seat.bookings.phone}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-shrink-0 ml-3 text-right">
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    {seat.zone} . {seat.row} . {seat.seat_number}
+                                                                </p>
+                                                                <div className="flex items-center justify-end gap-1 mt-0.5">
+                                                                    <div className="bg-gray-100 dark:bg-gray-700 rounded-full p-0.5">
+                                                                        <AlertCircle className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+                                                                    </div>
+                                                                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                                                                        Not Arrived
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    const renderSettingsTab = () => {
+        return (
+            <div className="flex flex-col h-full p-6">
+                <div className="flex items-center gap-2 mb-6">
+                    <Settings className="h-6 w-6 text-indigo-600" />
+                    <h1 className="text-2xl font-bold">Settings</h1>
+                </div>
+
+                <div className="flex-1 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg overflow-auto">
+                    <div className="space-y-4">
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 className="font-medium text-gray-900 dark:text-white">Event Information</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage event details</p>
+                        </div>
+
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 className="font-medium text-gray-900 dark:text-white">Scanner Settings</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure scanner preferences</p>
+                        </div>
+
+                        <div className="p-4">
+                            <h3 className="font-medium text-gray-900 dark:text-white">Export Data</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Download attendee information</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="flex flex-col h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative">
+            {/* Main Content Area */}
+            <div className="flex-1 overflow-hidden pb-20">
+                {activeTab === 'checkin' && renderScannerTab()}
+                {activeTab === 'checkout' && renderScannerTab()}
+                {activeTab === 'attendees' && renderAttendeesTab()}
+                {activeTab === 'settings' && renderSettingsTab()}
+            </div>
+
+            {/* Floating Navigation Bar */}
+            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-full shadow-2xl px-2 py-2 flex justify-around items-center min-w-[320px] max-w-md border border-gray-200 dark:border-gray-700">
+                {/* Check In Tab */}
+                <button
+                    onClick={() => setActiveTab('checkin')}
+                    className={`flex flex-col items-center justify-center p-2 rounded-full transition-all ${activeTab === 'checkin'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-600 scale-110'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        }`}
+                >
+                    <LogIn className="h-6 w-6" />
+                </button>
+
+                {/* Check Out Tab */}
+                <button
+                    onClick={() => setActiveTab('checkout')}
+                    className={`flex flex-col items-center justify-center p-2 rounded-full transition-all ${activeTab === 'checkout'
+                        ? 'bg-red-100 dark:bg-red-900/30 text-red-600 scale-110'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        }`}
+                >
+                    <LogOut className="h-6 w-6" />
+                </button>
+
+                {/* Attendees Tab */}
+                <button
+                    onClick={() => setActiveTab('attendees')}
+                    className={`flex flex-col items-center justify-center p-2 rounded-full transition-all ${activeTab === 'attendees'
+                        ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 scale-110'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        }`}
+                >
+                    <Users className="h-6 w-6" />
+                </button>
+
+                {/* Settings Tab */}
+                <button
+                    onClick={() => setActiveTab('settings')}
+                    className={`flex flex-col items-center justify-center p-2 rounded-full transition-all ${activeTab === 'settings'
+                        ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 scale-110'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        }`}
+                >
+                    <Settings className="h-6 w-6" />
+                </button>
+            </div>
 
             <style jsx>{`
-        @keyframes scan {
-          0% {
-            top: 0;
-          }
-          100% {
-            top: 100%;
-          }
-        }
-        .animate-scan {
-          animation: scan 2s linear infinite;
-        }
-      `}</style>
+                @keyframes scan {
+                    0% {
+                        top: 0;
+                    }
+                    100% {
+                        top: 100%;
+                    }
+                }
+                .animate-scan {
+                    animation: scan 2s linear infinite;
+                }
+            `}</style>
         </div>
     );
 }
