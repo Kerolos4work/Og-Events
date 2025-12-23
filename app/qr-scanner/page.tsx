@@ -131,13 +131,13 @@ export default function QRScannerPage() {
 
                         if (!rowsError && rowsData) {
                             // Create a map of row_id to row data
-                            const rowMap = rowsData.reduce((acc, row) => {
+                            const rowMap: {[key: string]: any} = rowsData.reduce((acc, row) => {
                                 acc[row.id] = row;
                                 return acc;
-                            }, {});
+                            }, {} as {[key: string]: any});
 
                             // Attach row data to each seat
-                            data.forEach(seat => {
+                            data.forEach((seat: any) => {
                                 if (seat.row_id && rowMap[seat.row_id]) {
                                     seat.rows = rowMap[seat.row_id];
                                 }
