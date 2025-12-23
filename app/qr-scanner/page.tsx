@@ -1,19 +1,42 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+
+// Hook to save and restore active tab to/from localStorage
+const usePersistedTab = (activeTab: TabType, setActiveTab: (tab: TabType) => void, isTabInitialized: boolean, setIsTabInitialized: (value: boolean) => void) => {
+    // Initialize tab from localStorage on client side
+    useEffect(() => {
+        if (typeof window !== 'undefined' && !isTabInitialized) {
+            const savedTab = localStorage.getItem('qr-scanner-active-tab');
+            if (savedTab === 'checkin' || savedTab === 'checkout' || savedTab === 'attendees') {
+                setActiveTab(savedTab as TabType);
+            }
+            setIsTabInitialized(true);
+        }
+    }, [isTabInitialized, setActiveTab]);
+
+    // Save tab to localStorage when it changes
+    useEffect(() => {
+        if (typeof window !== 'undefined' && isTabInitialized) {
+            localStorage.setItem('qr-scanner-active-tab', activeTab);
+        }
+    }, [activeTab, isTabInitialized]);
+};
 import { useRouter } from 'next/navigation';
 import { Camera, ArrowLeft, Check, AlertCircle, RefreshCw, Users, Settings, LogIn, LogOut, Home } from 'lucide-react';
 import QrScanner from 'qr-scanner';
 import { createClient } from '@supabase/supabase-js';
 
-type TabType = 'checkin' | 'checkout' | 'attendees' | 'settings';
+type TabType = 'checkin' | 'checkout' | 'attendees';
 
 export default function QRScannerPage() {
     const router = useRouter();
     const videoRef = useRef<HTMLVideoElement>(null);
     const qrScannerRef = useRef<QrScanner | null>(null);
 
+    // Initialize with default tab
     const [activeTab, setActiveTab] = useState<TabType>('checkin');
+    const [isTabInitialized, setIsTabInitialized] = useState(false);
     const [scanning, setScanning] = useState(false);
     const [result, setResult] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -37,6 +60,9 @@ export default function QRScannerPage() {
     );
     const [hasCamera, setHasCamera] = useState(true);
     const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+    
+    // Use the custom hook to persist the active tab
+    usePersistedTab(activeTab, setActiveTab, isTabInitialized, setIsTabInitialized);
 
     useEffect(() => {
         // Clean up any existing scanner before initializing
@@ -72,7 +98,9 @@ export default function QRScannerPage() {
                         id,
                         seat_number,
                         check_in:"Check-in",
+                        "last Check-in",
                         booking_id,
+                        row_id,
                         bookings (
                             name,
                             email,
@@ -83,9 +111,51 @@ export default function QRScannerPage() {
                     .order('"Check-in"', { ascending: false })
                     .order('seat_number', { ascending: true });
 
+                // Fetch row and zone information separately
+                if (data && data.length > 0) {
+                    // Get all unique row_ids
+                    const rowIds = [...new Set(data.map(seat => seat.row_id).filter(Boolean))];
+
+                    if (rowIds.length > 0) {
+                        // Fetch rows with their zones
+                        const { data: rowsData, error: rowsError } = await supabase
+                            .from('rows')
+                            .select(`
+                                id,
+                                row_number,
+                                zones (
+                                    name
+                                )
+                            `)
+                            .in('id', rowIds);
+
+                        if (!rowsError && rowsData) {
+                            // Create a map of row_id to row data
+                            const rowMap = rowsData.reduce((acc, row) => {
+                                acc[row.id] = row;
+                                return acc;
+                            }, {});
+
+                            // Attach row data to each seat
+                            data.forEach(seat => {
+                                if (seat.row_id && rowMap[seat.row_id]) {
+                                    seat.rows = rowMap[seat.row_id];
+                                }
+                            });
+                        }
+                    }
+                }
+
                 if (error) {
-                    console.error('Error fetching seats:', error);
+                    console.error('Error fetching seats:', JSON.stringify(error, null, 2));
+                    console.error('Error details:', error.message, error.hint, error.details);
                 } else {
+                    console.log('Seats data:', data);
+                    if (data && data.length > 0) {
+                        console.log('First seat structure:', JSON.stringify(data[0], null, 2));
+                        console.log('First seat check_in type:', typeof data[0].check_in);
+                        console.log('First seat check_in value:', data[0].check_in);
+                    }
                     setSeats(data || []);
                 }
             } catch (err) {
@@ -219,7 +289,7 @@ export default function QRScannerPage() {
 
         // Force a tab switch to reset the scanner
         const currentTab = activeTab;
-        setActiveTab('settings');
+        setActiveTab('attendees');
 
         // Wait a moment for the cleanup to complete
         setTimeout(async () => {
@@ -398,6 +468,10 @@ export default function QRScannerPage() {
         const totalSeats = seats.length;
         const checkedInCount = checkedInSeats.length;
         const notCheckedInCount = notCheckedInSeats.length;
+        
+        // Calculate seats with and without "last Check-in"
+        const seatsWithLastCheckIn = seats.filter(seat => seat["last Check-in"] !== null);
+        const seatsWithoutLastCheckIn = seats.filter(seat => seat["last Check-in"] === null);
 
         return (
             <div className="flex flex-col h-full p-6">
@@ -430,7 +504,7 @@ export default function QRScannerPage() {
                     <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-2.5 shadow-lg">
                         <div className="text-center">
                             <div className="text-xl font-bold mb-0.5">
-                                {notCheckedInCount}
+                                {seatsWithoutLastCheckIn.length} <span className="text-sm opacity-80"></span>
                             </div>
                             <div className="text-xs opacity-90">
                                 Not Arrived
@@ -438,11 +512,11 @@ export default function QRScannerPage() {
                             <div className="mt-1.5 bg-white/20 rounded-full h-1.5 overflow-hidden">
                                 <div
                                     className="bg-white h-full transition-all duration-500 ease-out"
-                                    style={{ width: `${totalSeats > 0 ? (notCheckedInCount / totalSeats) * 100 : 0}%` }}
+                                    style={{ width: `${seatsWithLastCheckIn.length > 0 ? (seatsWithoutLastCheckIn.length / (seatsWithLastCheckIn.length + seatsWithoutLastCheckIn.length)) * 100 : 0}%` }}
                                 />
                             </div>
                             <div className="mt-1 text-xs opacity-75">
-                                {totalSeats > 0 ? Math.round((notCheckedInCount / totalSeats) * 100) : 0}%
+                                {seatsWithLastCheckIn.length > 0 ? Math.round((seatsWithoutLastCheckIn.length / (seatsWithLastCheckIn.length + seatsWithoutLastCheckIn.length)) * 100) : 0}%
                             </div>
                         </div>
                     </div>
@@ -515,14 +589,14 @@ export default function QRScannerPage() {
                                                             </div>
                                                             <div className="flex-shrink-0 ml-3 text-right">
                                                                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                                    {seat.seat_number}
+                                                                    {seat.rows?.zones?.name} • {seat.rows?.row_number} • {seat.seat_number}
                                                                 </p>
                                                                 <div className="flex items-center justify-end gap-1 mt-0.5">
                                                                     <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-0.5">
                                                                         <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
                                                                     </div>
                                                                     <span className="text-xs text-green-600 dark:text-green-400">
-                                                                        In
+                                                                        Arrived at {new Date(seat["last Check-in"]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -587,14 +661,14 @@ export default function QRScannerPage() {
                                                             </div>
                                                             <div className="flex-shrink-0 ml-3 text-right">
                                                                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                                    {seat.seat_number}
+                                                                    {seat.rows?.zones?.name} • {seat.rows?.row_number} • {seat.seat_number}
                                                                 </p>
                                                                 <div className="flex items-center justify-end gap-1 mt-0.5">
                                                                     <div className="bg-gray-100 dark:bg-gray-700 rounded-full p-0.5">
                                                                         <AlertCircle className="h-3 w-3 text-gray-600 dark:text-gray-400" />
                                                                     </div>
                                                                     <span className="text-xs text-gray-600 dark:text-gray-400">
-                                                                        Out
+                                                                        {seat["last Check-in"] ? "Arrived at " + new Date(seat["last Check-in"]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Not Arrived Yet'}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -613,44 +687,24 @@ export default function QRScannerPage() {
         );
     };
 
-    const renderSettingsTab = () => {
-        return (
-            <div className="flex flex-col h-full p-6">
-                <div className="flex items-center gap-2 mb-6">
-                    <Settings className="h-6 w-6 text-indigo-600" />
-                    <h1 className="text-2xl font-bold">Settings</h1>
-                </div>
 
-                <div className="flex-1 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg overflow-auto">
-                    <div className="space-y-4">
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                            <h3 className="font-medium text-gray-900 dark:text-white">Event Information</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage event details</p>
-                        </div>
-
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                            <h3 className="font-medium text-gray-900 dark:text-white">Scanner Settings</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure scanner preferences</p>
-                        </div>
-
-                        <div className="p-4">
-                            <h3 className="font-medium text-gray-900 dark:text-white">Export Data</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Download attendee information</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
 
     return (
         <div className="flex flex-col h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative">
             {/* Main Content Area */}
             <div className="flex-1 overflow-hidden pb-20">
-                {activeTab === 'checkin' && renderScannerTab()}
-                {activeTab === 'checkout' && renderScannerTab()}
-                {activeTab === 'attendees' && renderAttendeesTab()}
-                {activeTab === 'settings' && renderSettingsTab()}
+                {isTabInitialized && (
+                    <>
+                        {activeTab === 'checkin' && renderScannerTab()}
+                        {activeTab === 'checkout' && renderScannerTab()}
+                        {activeTab === 'attendees' && renderAttendeesTab()}
+                    </>
+                )}
+                {!isTabInitialized && (
+                    <div className="flex h-full items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+                    </div>
+                )}
             </div>
 
             {/* Floating Navigation Bar */}
@@ -688,16 +742,7 @@ export default function QRScannerPage() {
                     <Users className="h-6 w-6" />
                 </button>
 
-                {/* Settings Tab */}
-                <button
-                    onClick={() => setActiveTab('settings')}
-                    className={`flex flex-col items-center justify-center p-2 rounded-full transition-all ${activeTab === 'settings'
-                        ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 scale-110'
-                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                        }`}
-                >
-                    <Settings className="h-6 w-6" />
-                </button>
+
             </div>
 
             <style jsx>{`
