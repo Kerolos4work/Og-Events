@@ -88,12 +88,15 @@ export async function POST(request: NextRequest) {
         let qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${seat.id}`;
 
         // Check if template has QR code URL with color parameters
-        /* 
-        if (template.ticketElements && template.ticketElements.qrCode) {
-          // Extract color parameters from template QR code URL
-          // ... logic disabled due to type error ...
-        } 
-        */
+        if (template.ticketElements && template.ticketElements.qrCode && (template.ticketElements.qrCode as any).visible) {
+          const qr = template.ticketElements.qrCode as any;
+          if (qr.foregroundColor) {
+            qrCodeUrl += `&color=${qr.foregroundColor.replace('#', '')}`;
+          }
+          if (qr.backgroundColor) {
+            qrCodeUrl += `&bgcolor=${qr.backgroundColor.replace('#', '')}`;
+          }
+        }
 
         // Generate custom texts
         const customTextsHtml = template.ticketElements.customTexts

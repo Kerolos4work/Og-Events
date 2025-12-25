@@ -83,20 +83,13 @@ export async function POST(request: NextRequest) {
       let qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${seat.id}`;
 
       // Check if template has QR code URL with color parameters
-      if (template.ticketElements && template.ticketElements.qrCode && template.ticketElements.qrCode.visible) {
-        // Extract color parameters from template QR code URL
-        // Generate default QR code URL with color parameters
-        const templateQrUrl = new URL(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${seat.id}`);
-        const colorParam = templateQrUrl.searchParams.get('color');
-        const bgcolorParam = templateQrUrl.searchParams.get('bgcolor');
-
-        // Add color parameters to our QR code URL
-        if (colorParam) {
-          qrCodeUrl += `&color=${colorParam}`;
+      if (template.ticketElements && template.ticketElements.qrCode && (template.ticketElements.qrCode as any).visible) {
+        const qr = template.ticketElements.qrCode as any;
+        if (qr.foregroundColor) {
+          qrCodeUrl += `&color=${qr.foregroundColor.replace('#', '')}`;
         }
-
-        if (bgcolorParam) {
-          qrCodeUrl += `&bgcolor=${bgcolorParam}`;
+        if (qr.backgroundColor) {
+          qrCodeUrl += `&bgcolor=${qr.backgroundColor.replace('#', '')}`;
         }
       }
 
@@ -195,10 +188,15 @@ export async function POST(request: NextRequest) {
                 </html>
             `;
 
+      const rowObj = Array.isArray(seat.rows) ? seat.rows[0] : seat.rows;
+      const zoneObj = Array.isArray(rowObj?.zones) ? rowObj.zones[0] : rowObj?.zones;
+      const zoneName = (zoneObj?.name || 'zone').replace(/\s+/g, '-');
+      const firstName = booking.name.split(' ')[0];
+      const phone = booking.phone || '';
+
       return {
         html: htmlDocument,
-        filename: `${booking.name.replace(/\s+/g, '-')}-${(Array.isArray(seat.rows) ? seat.rows[0] : seat.rows)?.zones?.[0]?.name || 'zone'
-          }-${(Array.isArray(seat.rows) ? seat.rows[0] : seat.rows)?.row_number || 'row'}-${seat.seat_number}.html`,
+        filename: `${firstName} ${phone} ${zoneName}•${rowObj?.row_number || 'row'}•${seat.seat_number}.html`,
       };
     });
 
