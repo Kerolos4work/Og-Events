@@ -11,7 +11,7 @@ import PaymentModeForm from './payment-mode-form';
 import fs from 'fs';
 import { isUserAdmin } from '@/lib/auth';
 import path from 'path';
-import settingsData from '../../../config/settings.json';
+import settingsData from '@/config/settings.json';
 
 export default async function SettingsContent() {
   const supabase = await createClient();
@@ -54,10 +54,10 @@ export default async function SettingsContent() {
       {new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get(
         'success'
       ) && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-green-800">Settings updated successfully!</p>
-        </div>
-      )}
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+            <p className="text-green-800">Settings updated successfully!</p>
+          </div>
+        )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
