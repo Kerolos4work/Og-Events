@@ -116,27 +116,24 @@ const BookingForm: React.FC<BookingFormProps> = ({
   const getInputClasses = (hasError: boolean) => {
     if (hasError)
       return `${inputBaseClasses} border-red-500 focus:ring-red-500 bg-red-50 text-red-900 placeholder-red-300`;
-    return `${inputBaseClasses} ${
-      isDarkMode
+    return `${inputBaseClasses} ${isDarkMode
         ? 'bg-white/10 border-white/20 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-transparent'
         : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-500 focus:ring-blue-500 focus:border-transparent'
-    }`;
+      }`;
   };
 
   return (
     <div
-      className={`absolute z-20 transition-all duration-300 transform ${
-        isMobile
+      className={`absolute z-20 transition-all duration-300 transform ${isMobile
           ? `bottom-0 left-0 right-0 rounded-t-3xl ${isExpanded ? 'h-[87vh]' : 'h-auto'}`
           : `top-4 ${isRTL() ? 'left-4' : 'right-4'}`
-      }`}
+        }`}
     >
       <div
-        className={`${isDarkMode ? 'border-white/10' : 'border-black/10'} border shadow-2xl ${
-          isMobile
+        className={`${isDarkMode ? 'border-white/10' : 'border-black/10'} border shadow-2xl ${isMobile
             ? 'rounded-t-3xl w-full flex flex-col h-full'
             : 'rounded-2xl w-72 max-w-[90vw] p-4'
-        }`}
+          }`}
         style={{
           backgroundColor: isDarkMode ? 'rgb(0 0 0 / 0.6)' : 'rgb(255 255 255 / 0.6)',
           backdropFilter: 'blur(24px)',
@@ -158,7 +155,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
               </h3>
               <div className="flex items-center gap-2">
                 <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {selectedSeats.length} {t('seats')}
+                  {selectedSeats.length} {t('seatsSelection')}
                 </span>
                 <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-xs`}>
                   |
