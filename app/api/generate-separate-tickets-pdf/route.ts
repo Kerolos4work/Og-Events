@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import * as QRCode from 'qrcode';
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
     const categories = venuesData[0].categories || [];
 
     // Generate an array of HTML documents, one for each ticket
-    const ticketHtmls = booking.seats.map((seat, index) => {
+    const ticketHtmls = await Promise.all(booking.seats.map(async (seat, index) => {
       // Find category and template for this seat
       const seatCategory = seat.category; // Use seat category if available, fallback to zone name
       const category = categories.find((cat: any) => cat.name === seatCategory);
@@ -80,17 +81,28 @@ export async function POST(request: NextRequest) {
         template = category.templates[0];
       }
 
-      // Generate QR code URL with seat ID and color parameters from template
-      let qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${seat.id}`;
-
-      // Check if template has QR code URL with color parameters
+      // Generate SVG QR code for better quality and vector output
+      let qrCodeSvg = '';
       if (template.ticketElements && template.ticketElements.qrCode && (template.ticketElements.qrCode as any).visible) {
         const qr = template.ticketElements.qrCode as any;
+        const qrOptions: any = {
+          type: 'svg',
+          width: qr.width || 200,
+          margin: 1,
+        };
+
         if (qr.foregroundColor) {
-          qrCodeUrl += `&color=${qr.foregroundColor.replace('#', '')}`;
+          qrOptions.color = {
+            dark: qr.foregroundColor,
+            light: qr.backgroundColor || '#FFFFFF'
+          };
         }
-        if (qr.backgroundColor) {
-          qrCodeUrl += `&bgcolor=${qr.backgroundColor.replace('#', '')}`;
+
+        try {
+          qrCodeSvg = (await QRCode.toString(String(seat.id), qrOptions)) as unknown as string;
+        } catch (qrError) {
+          console.error('Error generating QR code:', qrError);
+          qrCodeSvg = '';
         }
       }
 
@@ -142,7 +154,7 @@ export async function POST(request: NextRequest) {
           content = content.replace('{PRICE}', (booking.amount / booking.seats.length).toString());
           content = content.replace('{BOOKING_ID}', booking.id.substring(0, 8));
 
-          return `<div style="${style}">${content}</div>`;
+          return `<div class="ticket-text" style="${style}">${content}</div>`;
         })
         .join('');
 
@@ -165,6 +177,8 @@ export async function POST(request: NextRequest) {
                             width: ${template.ticketSize.width}px;
                             height: ${template.ticketSize.height}px;
                             overflow: hidden;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                         }
                         html {
                             margin: 0;
@@ -172,16 +186,24 @@ export async function POST(request: NextRequest) {
                             width: ${template.ticketSize.width}px;
                             height: ${template.ticketSize.height}px;
                         }
+                        .ticket-text {
+                            user-select: text;
+                            -webkit-user-select: text;
+                            -moz-user-select: text;
+                            -ms-user-select: text;
+                        }
                     </style>
                 </head>
                 <body>
-                    <div style="position: relative; width: ${template.ticketSize.width}px; height: ${template.ticketSize.height}px; overflow: hidden;">
+                    <div style="position: relative; width: ${template.ticketSize.width}px; height: ${template.ticketSize.height}px; overflow: hidden; background: white;">
                         ${template.backgroundImageUrl
-          ? `<img src="${template.backgroundImageUrl}" style="position: absolute; left: ${template.ticketElements.backgroundImage.x}px; top: ${template.ticketElements.backgroundImage.y}px; width: ${template.ticketElements.backgroundImage.width}px; height: ${template.ticketElements.backgroundImage.height}px; z-index: 0;" />`
+          ? `<img src="${template.backgroundImageUrl}" style="position: absolute; left: ${template.ticketElements.backgroundImage.x}px; top: ${template.ticketElements.backgroundImage.y}px; width: ${template.ticketElements.backgroundImage.width}px; height: ${template.ticketElements.backgroundImage.height}px; z-index: 0; user-select: none;" alt="" />`
           : ''
         }
-                        ${template.ticketElements.qrCode.visible
-          ? `<img src="${qrCodeUrl}" style="position: absolute; left: ${template.ticketElements.qrCode.x}px; top: ${template.ticketElements.qrCode.y}px; width: ${template.ticketElements.qrCode.width}px; height: ${template.ticketElements.qrCode.height}px; z-index: 2;" />`
+                        ${template.ticketElements.qrCode.visible && qrCodeSvg
+          ? `<div style="position: absolute; left: ${template.ticketElements.qrCode.x}px; top: ${template.ticketElements.qrCode.y}px; width: ${template.ticketElements.qrCode.width}px; height: ${template.ticketElements.qrCode.height}px; z-index: 2; display: flex; align-items: center; justify-content: center;">
+              ${qrCodeSvg}
+            </div>`
           : ''
         }
                         ${customTextsHtml}
@@ -193,14 +215,14 @@ export async function POST(request: NextRequest) {
       const rowObj = Array.isArray(seat.rows) ? seat.rows[0] : seat.rows;
       const zoneObj = Array.isArray(rowObj?.zones) ? rowObj.zones[0] : rowObj?.zones;
       const zoneName = (zoneObj?.name || 'zone').replace(/\s+/g, '-');
-      const firstName = booking.name.split(' ')[0];
+      const firstName = seat.name_on_ticket;
       const phone = booking.phone || '';
 
       return {
         html: htmlDocument,
         filename: `${firstName} ${phone} ${zoneName}•${rowObj?.row_number || 'row'}•${seat.seat_number}.html`,
       };
-    });
+    }));
 
     // Return the array of HTML documents
     return NextResponse.json({

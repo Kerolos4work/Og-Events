@@ -112,8 +112,9 @@ async function BookingsContent() {
               <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Pending Bookings</h2>
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Review and manage bookings with pending or null status</p>
             </div>
-            <BookingsTable 
+            <BookingsTable
               bookings={bookings || []}
+              processingId={null}
               showStatusColumn={false}
               showPaymentProofColumn={true}
               showCustomerActions={true}

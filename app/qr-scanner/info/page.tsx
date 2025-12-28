@@ -14,8 +14,7 @@ export default function InfoScanPage() {
         setLastResult,
         lastError,
         lastInfo,
-        handleContinue,
-        toggleCamera
+        handleContinue
     } = useScannerLogic('info');
 
     return (
@@ -31,7 +30,6 @@ export default function InfoScanPage() {
                     videoRef={videoRef}
                     hasCamera={hasCamera}
                     isCooldown={isCooldown}
-                    toggleCamera={toggleCamera}
                 />
             </main>
         </div>

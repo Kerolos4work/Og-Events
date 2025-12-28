@@ -14,8 +14,7 @@ export default function CheckInPage() {
         setLastResult,
         lastError,
         lastInfo,
-        handleContinue,
-        toggleCamera
+        handleContinue
     } = useScannerLogic('checkin');
 
     return (
@@ -31,7 +30,6 @@ export default function CheckInPage() {
                     videoRef={videoRef}
                     hasCamera={hasCamera}
                     isCooldown={isCooldown}
-                    toggleCamera={toggleCamera}
                 />
             </main>
         </div>

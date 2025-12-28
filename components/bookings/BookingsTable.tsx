@@ -39,7 +39,7 @@ interface BookingsTableProps {
     showStatusColumn?: boolean;
     showPaymentProofColumn?: boolean;
     onImageClick?: (imageUrl: string) => void;
-    t?: (key: string) => string;
+    t?: (key: string, params?: any) => string;
     currency?: string;
     onApprove?: (bookingId: string) => void;
     onReject?: (bookingId: string) => void;
@@ -169,12 +169,12 @@ export default function BookingsTable({
 
     const filteredBookings = useMemo(() => {
         return bookings.filter(booking => {
-            const matchesSearch = 
+            const matchesSearch =
                 booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 booking.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 booking.phone.includes(searchTerm) ||
                 booking.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                booking.seats.some(seat => 
+                booking.seats.some(seat =>
                     seat.name_on_ticket?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     seat.seat_number.includes(searchTerm) ||
                     seat.rows.zones.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -270,218 +270,218 @@ export default function BookingsTable({
                         </button>
                     </div>
 
-                {/* Advanced Filters */}
-                {showAdvancedFilters && (
-                    <div className="space-y-4 pt-3 border-t border-slate-200 dark:border-slate-700">
-                        {/* Preset Filters */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Quick Filters</label>
-                            <div className="flex flex-wrap gap-2">
-                                <button
-                                    onClick={() => {
-                                        setPresetFilter(presetFilter === 'highValue' ? '' : 'highValue');
-                                        // Reset other filters
-                                        setDateFrom('');
-                                        setDateTo('');
-                                        setMinSeats('');
-                                        setMaxSeats('');
-                                        setMinAmount('');
-                                        setMaxAmount('');
-                                        setPhonePrefix('');
-                                        setPhoneContains('');
-                                    }}
-                                    className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${presetFilter === 'highValue' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
-                                >
-                                    💰 High Value (5000+)
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setPresetFilter(presetFilter === 'largeGroup' ? '' : 'largeGroup');
-                                        setDateFrom('');
-                                        setDateTo('');
-                                        setMinSeats('');
-                                        setMaxSeats('');
-                                        setMinAmount('');
-                                        setMaxAmount('');
-                                        setPhonePrefix('');
-                                        setPhoneContains('');
-                                    }}
-                                    className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${presetFilter === 'largeGroup' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
-                                >
-                                    👥 Large Groups (10+ seats)
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setPresetFilter(presetFilter === 'recent' ? '' : 'recent');
-                                        setDateFrom('');
-                                        setDateTo('');
-                                        setMinSeats('');
-                                        setMaxSeats('');
-                                        setMinAmount('');
-                                        setMaxAmount('');
-                                        setPhonePrefix('');
-                                        setPhoneContains('');
-                                    }}
-                                    className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${presetFilter === 'recent' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
-                                >
-                                    📅 Recent (Last 7 days)
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setPresetFilter(presetFilter === 'pendingLarge' ? '' : 'pendingLarge');
-                                        setDateFrom('');
-                                        setDateTo('');
-                                        setMinSeats('');
-                                        setMaxSeats('');
-                                        setMinAmount('');
-                                        setMaxAmount('');
-                                        setPhonePrefix('');
-                                        setPhoneContains('');
-                                    }}
-                                    className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${presetFilter === 'pendingLarge' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
-                                >
-                                    ⏳ Pending Large (5+ seats)
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Custom Filters */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {/* Date Range */}
+                    {/* Advanced Filters */}
+                    {showAdvancedFilters && (
+                        <div className="space-y-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+                            {/* Preset Filters */}
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Date Range</label>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="date"
-                                        value={dateFrom}
-                                        onChange={(e) => setDateFrom(e.target.value)}
-                                        className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                                    />
-                                    <input
-                                        type="date"
-                                        value={dateTo}
-                                        onChange={(e) => setDateTo(e.target.value)}
-                                        className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Seat Count Filter with Operator */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Seat Count</label>
-                                <div className="flex gap-2">
-                                    <select
-                                        value={seatOperator}
-                                        onChange={(e) => setSeatOperator(e.target.value as 'gte' | 'lte' | 'eq')}
-                                        className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                                    >
-                                        <option value="gte">≥ (at least)</option>
-                                        <option value="lte">≤ (at most)</option>
-                                        <option value="eq">= (exactly)</option>
-                                    </select>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={seatOperator === 'lte' ? maxSeats : minSeats}
-                                        onChange={(e) => {
-                                            if (seatOperator === 'lte') {
-                                                setMaxSeats(e.target.value);
-                                            } else {
-                                                setMinSeats(e.target.value);
-                                            }
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Quick Filters</label>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setPresetFilter(presetFilter === 'highValue' ? '' : 'highValue');
+                                            // Reset other filters
+                                            setDateFrom('');
+                                            setDateTo('');
+                                            setMinSeats('');
+                                            setMaxSeats('');
+                                            setMinAmount('');
+                                            setMaxAmount('');
+                                            setPhonePrefix('');
+                                            setPhoneContains('');
                                         }}
-                                        placeholder="e.g., 5"
-                                        className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Amount Filter with Operator */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Amount</label>
-                                <div className="flex gap-2">
-                                    <select
-                                        value={amountOperator}
-                                        onChange={(e) => setAmountOperator(e.target.value as 'gte' | 'lte' | 'eq')}
-                                        className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                        className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${presetFilter === 'highValue' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
                                     >
-                                        <option value="gte">≥ (at least)</option>
-                                        <option value="lte">≤ (at most)</option>
-                                        <option value="eq">= (exactly)</option>
-                                    </select>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={amountOperator === 'lte' ? maxAmount : minAmount}
-                                        onChange={(e) => {
-                                            if (amountOperator === 'lte') {
-                                                setMaxAmount(e.target.value);
-                                            } else {
-                                                setMinAmount(e.target.value);
-                                            }
+                                        💰 High Value (5000+)
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setPresetFilter(presetFilter === 'largeGroup' ? '' : 'largeGroup');
+                                            setDateFrom('');
+                                            setDateTo('');
+                                            setMinSeats('');
+                                            setMaxSeats('');
+                                            setMinAmount('');
+                                            setMaxAmount('');
+                                            setPhonePrefix('');
+                                            setPhoneContains('');
                                         }}
-                                        placeholder="e.g., 1000"
-                                        className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                        className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${presetFilter === 'largeGroup' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
+                                    >
+                                        👥 Large Groups (10+ seats)
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setPresetFilter(presetFilter === 'recent' ? '' : 'recent');
+                                            setDateFrom('');
+                                            setDateTo('');
+                                            setMinSeats('');
+                                            setMaxSeats('');
+                                            setMinAmount('');
+                                            setMaxAmount('');
+                                            setPhonePrefix('');
+                                            setPhoneContains('');
+                                        }}
+                                        className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${presetFilter === 'recent' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
+                                    >
+                                        📅 Recent (Last 7 days)
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setPresetFilter(presetFilter === 'pendingLarge' ? '' : 'pendingLarge');
+                                            setDateFrom('');
+                                            setDateTo('');
+                                            setMinSeats('');
+                                            setMaxSeats('');
+                                            setMinAmount('');
+                                            setMaxAmount('');
+                                            setPhonePrefix('');
+                                            setPhoneContains('');
+                                        }}
+                                        className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${presetFilter === 'pendingLarge' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
+                                    >
+                                        ⏳ Pending Large (5+ seats)
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Custom Filters */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {/* Date Range */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Date Range</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="date"
+                                            value={dateFrom}
+                                            onChange={(e) => setDateFrom(e.target.value)}
+                                            className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                        />
+                                        <input
+                                            type="date"
+                                            value={dateTo}
+                                            onChange={(e) => setDateTo(e.target.value)}
+                                            className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Seat Count Filter with Operator */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Seat Count</label>
+                                    <div className="flex gap-2">
+                                        <select
+                                            value={seatOperator}
+                                            onChange={(e) => setSeatOperator(e.target.value as 'gte' | 'lte' | 'eq')}
+                                            className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                        >
+                                            <option value="gte">≥ (at least)</option>
+                                            <option value="lte">≤ (at most)</option>
+                                            <option value="eq">= (exactly)</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={seatOperator === 'lte' ? maxSeats : minSeats}
+                                            onChange={(e) => {
+                                                if (seatOperator === 'lte') {
+                                                    setMaxSeats(e.target.value);
+                                                } else {
+                                                    setMinSeats(e.target.value);
+                                                }
+                                            }}
+                                            placeholder="e.g., 5"
+                                            className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Amount Filter with Operator */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Amount</label>
+                                    <div className="flex gap-2">
+                                        <select
+                                            value={amountOperator}
+                                            onChange={(e) => setAmountOperator(e.target.value as 'gte' | 'lte' | 'eq')}
+                                            className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                        >
+                                            <option value="gte">≥ (at least)</option>
+                                            <option value="lte">≤ (at most)</option>
+                                            <option value="eq">= (exactly)</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={amountOperator === 'lte' ? maxAmount : minAmount}
+                                            onChange={(e) => {
+                                                if (amountOperator === 'lte') {
+                                                    setMaxAmount(e.target.value);
+                                                } else {
+                                                    setMinAmount(e.target.value);
+                                                }
+                                            }}
+                                            placeholder="e.g., 1000"
+                                            className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Phone Prefix */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Starts With</label>
+                                    <input
+                                        type="text"
+                                        value={phonePrefix}
+                                        onChange={(e) => setPhonePrefix(e.target.value)}
+                                        placeholder="e.g., 01"
+                                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                    />
+                                </div>
+
+                                {/* Phone Contains */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Contains</label>
+                                    <input
+                                        type="text"
+                                        value={phoneContains}
+                                        onChange={(e) => setPhoneContains(e.target.value)}
+                                        placeholder="e.g., 12345"
+                                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                                     />
                                 </div>
                             </div>
 
-                            {/* Phone Prefix */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Starts With</label>
-                                <input
-                                    type="text"
-                                    value={phonePrefix}
-                                    onChange={(e) => setPhonePrefix(e.target.value)}
-                                    placeholder="e.g., 01"
-                                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                                />
-                            </div>
-
-                            {/* Phone Contains */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Contains</label>
-                                <input
-                                    type="text"
-                                    value={phoneContains}
-                                    onChange={(e) => setPhoneContains(e.target.value)}
-                                    placeholder="e.g., 12345"
-                                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                                />
+                            {/* Clear All Filters Button */}
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => {
+                                        setDateFrom('');
+                                        setDateTo('');
+                                        setMinSeats('');
+                                        setMaxSeats('');
+                                        setMinAmount('');
+                                        setMaxAmount('');
+                                        setPhonePrefix('');
+                                        setPhoneContains('');
+                                        setPresetFilter('');
+                                        setSeatOperator('gte');
+                                        setAmountOperator('gte');
+                                    }}
+                                    className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors text-sm"
+                                >
+                                    Clear All Filters
+                                </button>
                             </div>
                         </div>
+                    )}
 
-                        {/* Clear All Filters Button */}
-                        <div className="flex justify-end">
-                            <button
-                                onClick={() => {
-                                    setDateFrom('');
-                                    setDateTo('');
-                                    setMinSeats('');
-                                    setMaxSeats('');
-                                    setMinAmount('');
-                                    setMaxAmount('');
-                                    setPhonePrefix('');
-                                    setPhoneContains('');
-                                    setPresetFilter('');
-                                    setSeatOperator('gte');
-                                    setAmountOperator('gte');
-                                }}
-                                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors text-sm"
-                            >
-                                Clear All Filters
-                            </button>
+                    {filteredBookings.length !== bookings.length && (
+                        <div className="text-sm text-slate-600 dark:text-slate-400">
+                            {t('showingResults', { count: filteredBookings.length, total: bookings.length }) || `Showing ${filteredBookings.length} of ${bookings.length} bookings`}
                         </div>
-                    </div>
-                )}
-
-                {filteredBookings.length !== bookings.length && (
-                    <div className="text-sm text-slate-600 dark:text-slate-400">
-                        {t('showingResults', { count: filteredBookings.length, total: bookings.length }) || `Showing ${filteredBookings.length} of ${bookings.length} bookings`}
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
             )}
             {/* Mobile Card View */}
             <div className="md:hidden">

@@ -14,8 +14,7 @@ export default function CheckOutPage() {
         setLastResult,
         lastError,
         lastInfo,
-        handleContinue,
-        toggleCamera
+        handleContinue
     } = useScannerLogic('checkout');
 
     return (
@@ -31,7 +30,6 @@ export default function CheckOutPage() {
                     videoRef={videoRef}
                     hasCamera={hasCamera}
                     isCooldown={isCooldown}
-                    toggleCamera={toggleCamera}
                 />
             </main>
         </div>
