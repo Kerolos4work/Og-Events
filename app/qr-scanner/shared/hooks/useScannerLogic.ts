@@ -58,16 +58,25 @@ export const useScannerLogic = (activeTab: TabType) => {
             if (isInfo) {
                 const { data: seatData } = await supabase
                     .from('seats')
-                    .select('seat_number, rows(row_number, zones(name))')
+                    .select(`
+                        id, seat_number, "Check-in", row_id, booking_id, "last Check-in", name_on_ticket,
+                        rows(row_number, zones(name)),
+                        bookings(name, email, phone)
+                    `)
                     .eq('id', data)
                     .single();
 
                 if (seatData) {
+                    const mappedData = {
+                        ...seatData,
+                        check_in: seatData["Check-in"]
+                    };
                     setLastInfo({
                         success: true,
                         message: 'Seat Found',
                         seatInfo: `${(seatData as any).rows?.zones?.name} • ${(seatData as any).rows?.row_number} • ${seatData.seat_number}`,
-                        mode: 'info'
+                        mode: 'info',
+                        seatData: mappedData as any
                     });
                 } else {
                     setLastError({

@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
                     id,
                     seat_number,
                     status,
+                    name_on_ticket,
                     category,
                     rows (
                         row_number,
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
             content = content.replace('{ROW}', rowData?.row_number || '');
             content = content.replace('{SEAT}', seat.seat_number);
             content = content.replace('{NAME}', booking.name);
+            content = content.replace('{TNAME}', seat.name_on_ticket);
             content = content.replace('{EMAIL}', booking.email);
             content = content.replace('{PHONE}', booking.phone);
             content = content.replace(

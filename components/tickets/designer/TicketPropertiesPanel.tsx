@@ -259,7 +259,7 @@ export default function TicketPropertiesPanel({
                       placeholder="Enter text..."
                     />
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      {['{ZONE}', '{ROW}', '{SEAT}', '{PRICE}'].map(ph => (
+                      {['{ZONE}', '{ROW}', '{SEAT}', '{NAME}', '{TNAME}', '{EMAIL}', '{PHONE}', '{PRICE}', '{BOOKING_ID}', '{SEAT_ID}'].map(ph => (
                         <button
                           key={ph}
                           onClick={() => onUpdateCustomText(textElement.id, { content: (textElement.content || "") + ph })}

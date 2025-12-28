@@ -19,7 +19,7 @@ export const AttendeesView = () => {
             const { data } = await supabase
                 .from('seats')
                 .select(`
-                    id, seat_number, "Check-in", row_id, booking_id, "last Check-in",
+                    id, seat_number, "Check-in", row_id, booking_id, "last Check-in", name_on_ticket,
                     rows(row_number, zones(name)),
                     bookings(name, email, phone)
                 `)
@@ -60,7 +60,7 @@ export const AttendeesView = () => {
         const normalizedQuery = searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '');
         return seatsToFilter.filter(seat => {
             const searchableItems = [
-                seat.bookings?.name,
+                seat.name_on_ticket,
                 seat.bookings?.phone,
                 seat.rows?.zones?.name,
                 seat.rows?.row_number,
@@ -153,8 +153,8 @@ export const AttendeesView = () => {
                                             <div key={seat.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-900/50">
                                                 <div className="flex justify-between items-start">
                                                     <div className="min-w-0">
-                                                        <p className="font-bold text-gray-900 dark:text-white truncate">{seat.bookings?.name}</p>
-                                                        <p className="text-[10px] text-gray-500 font-medium">{seat.bookings?.phone}</p>
+                                                        <p className="font-bold text-gray-900 dark:text-white truncate">{seat.name_on_ticket}</p>
+                                                        <p className="text-[10px] text-gray-500 font-medium">{seat.bookings?.name} ➤ {seat.bookings?.phone}</p>
                                                     </div>
                                                     <div className="text-right flex-shrink-0">
                                                         <p className="text-[10px] font-black uppercase text-gray-900 dark:text-white">
@@ -193,8 +193,8 @@ export const AttendeesView = () => {
                                             <div key={seat.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-900/50">
                                                 <div className="flex justify-between items-start">
                                                     <div className="min-w-0">
-                                                        <p className="font-bold text-gray-900 dark:text-white truncate">{seat.bookings?.name}</p>
-                                                        <p className="text-[10px] text-gray-500 font-medium">{seat.bookings?.phone}</p>
+                                                        <p className="font-bold text-gray-900 dark:text-white truncate">{seat.name_on_ticket}</p>
+                                                        <p className="text-[10px] text-gray-500 font-medium">{seat.bookings?.name} ➤ {seat.bookings?.phone}</p>
                                                     </div>
                                                     <div className="text-right flex-shrink-0">
                                                         <p className="text-[10px] font-black uppercase text-gray-900 dark:text-white">

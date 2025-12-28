@@ -34,6 +34,8 @@ export const SuccessToaster = ({ result, onClose }: { result: ScanResult; onClos
 };
 
 export const InfoOverlay = ({ info, onContinue }: { info: ScanResult; onContinue: () => void }) => {
+    const { seatData } = info;
+    
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-300 border-b-8 border-amber-500">
@@ -43,14 +45,66 @@ export const InfoOverlay = ({ info, onContinue }: { info: ScanResult; onContinue
                         <Info className="h-16 w-16 text-white" />
                     </div>
                 </div>
-                <div className="p-8 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="p-8">
+                    <div className="flex items-center justify-center gap-2 mb-4">
                         <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                        <h2 className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.3em]">Seat Information</h2>
+                        <h2 className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.3em]">Ticket Information</h2>
                     </div>
-                    <p className="text-3xl font-black text-gray-900 dark:text-white mb-6 tracking-tighter leading-tight uppercase font-mono">
-                        {info.seatInfo}
-                    </p>
+                    
+                    {seatData && (
+                        <div className="space-y-3 mb-6">
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Name on Ticket</p>
+                                <p className="text-sm font-black text-gray-900 dark:text-white">{seatData.name_on_ticket || 'N/A'}</p>
+                            </div>
+                            
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Seat</p>
+                                <p className="text-2xl font-black text-gray-900 dark:text-white uppercase font-mono tracking-tighter">
+                                    {seatData.rows?.zones?.name} • {seatData.rows?.row_number} • {seatData.seat_number}
+                                </p>
+                            </div>
+                            
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Booking Name</p>
+                                <p className="text-sm font-bold text-gray-900 dark:text-white">{seatData.bookings?.name || 'N/A'}</p>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Phone</p>
+                                    <p className="text-xs font-bold text-gray-900 dark:text-white break-all">{seatData.bookings?.phone || 'N/A'}</p>
+                                </div>
+                                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Email</p>
+                                    <p className="text-xs font-bold text-gray-900 dark:text-white break-all">{seatData.bookings?.email || 'N/A'}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Check-in Status</p>
+                                    <p className={`text-xs font-black uppercase ${seatData.check_in ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                                        {seatData.check_in ? 'Checked In' : 'Not Checked In'}
+                                    </p>
+                                </div>
+                                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Last Check-in</p>
+                                    <p className="text-xs font-bold text-gray-900 dark:text-white">
+                                        {seatData["last Check-in"] 
+                                            ? new Date(seatData["last Check-in"]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                                            : 'N/A'
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Booking ID</p>
+                                <p className="text-xs font-mono text-gray-900 dark:text-white break-all">{seatData.booking_id || 'N/A'}</p>
+                            </div>
+                        </div>
+                    )}
 
                     <button
                         onClick={onContinue}
