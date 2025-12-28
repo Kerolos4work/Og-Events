@@ -209,7 +209,7 @@ function PaymentSuccessContent() {
               <>
                 <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
                 <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'} mb-2`}>{t.paymentSuccessful}</h2>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-6>{t.bookingConfirmed}</p>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-6`}>{t.bookingConfirmed}</p>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-6`}>{t.orderId}: {searchParams.get('orderId')}</p>
                 <button
                   onClick={handleContinue}
@@ -226,7 +226,7 @@ function PaymentSuccessContent() {
                   </svg>
                 </div>
                 <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'} mb-2`}>{t.paymentVerificationFailed}</h2>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-2>{error || t.couldNotVerify}</p>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-2`}>{error || t.couldNotVerify}</p>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-6`}>{t.orderId}: {searchParams.get('orderId')}</p>
                 <button
                   onClick={handleContinue}

@@ -7,8 +7,9 @@ import { updateBookingWithPayment } from '@/components/seat-map/services';
 import { uploadFile } from '@/lib/storage';
 import { markPaymentUploaded } from '@/lib/booking-redirect';
 import { convertHeicToJpeg } from '@/lib/heic-converter';
+import { supabase } from '@/lib/supabase';
 
-export const usePaymentSubmission = (bookingId: string) => {
+export const usePaymentSubmission = (bookingId: string, seatNames?: Record<string, string>) => {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -19,11 +20,11 @@ export const usePaymentSubmission = (bookingId: string) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
-      
+
       // Show converting state
       setIsConverting(true);
       setError(null);
-      
+
       // Convert HEIC to JPEG if needed
       convertHeicToJpeg(selectedFile)
         .then((convertedFile) => {
@@ -75,6 +76,23 @@ export const usePaymentSubmission = (bookingId: string) => {
         setError('Failed to upload payment proof');
         console.error(error);
         return;
+      }
+
+      // Update seat names if provided
+      if (seatNames && Object.keys(seatNames).length > 0) {
+        try {
+          const updatePromises = Object.entries(seatNames).map(([seatId, name]) =>
+            supabase
+              .from('seats')
+              .update({ name_on_ticket: name.trim() })
+              .eq('id', seatId)
+          );
+
+          await Promise.all(updatePromises);
+        } catch (nameError) {
+          console.error('Error updating seat names:', nameError);
+          // Don't fail the whole transaction if name update fails
+        }
       }
 
       if (data && data.success) {

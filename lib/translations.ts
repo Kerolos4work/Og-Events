@@ -145,6 +145,12 @@ export const translations = {
     paymentProofSubmittedMessage:
       'Your payment proof has been submitted successfully. Your booking is now pending admin approval.',
     redirectingToConfirmation: 'Redirecting to confirmation page...',
+
+    // Seat Names List
+    ticketHolderNames: 'Ticket Names',
+    allNamesRequired: 'All names are required',
+    enterName: 'Enter full name',
+    namesRequiredInfo: 'Please enter the full name for each ticket holder below.',
   },
 
   // Arabic translations
@@ -267,6 +273,12 @@ export const translations = {
     paymentProofSubmitted: 'تم تقديم إثبات الدفع',
     paymentProofSubmittedMessage: 'تم تقديم إثبات الدفع بنجاح. حجزك الآن في انتظار موافقة الإدارة.',
     redirectingToConfirmation: 'جاري التوجيه إلى صفحة التأكيد...',
+
+    // Seat Names List
+    ticketHolderNames: 'أسماء حاملي التذاكر',
+    allNamesRequired: 'جميع الأسماء مطلوبة',
+    enterName: 'أدخل الاسم بالكامل',
+    namesRequiredInfo: 'يرجى إدخال الاسم بالكامل لكل حامل تذكرة أدناه.',
   },
 
   // Add more languages as needed

@@ -9,6 +9,7 @@ import InfoCards from './InfoCards';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import FileUpload from './FileUpload';
 import ActionButtons from './ActionButtons';
+import SeatNamesList from './SeatNamesList';
 import settings from '../../../../config/settings.json';
 import { useLanguageContext } from '@/contexts/LanguageContext';
 
@@ -30,6 +31,9 @@ interface PaymentPageProps {
   isConverting?: boolean;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
+  seatNames: Record<string, string>;
+  onSeatNameChange: (seatId: string, name: string) => void;
+  allNamesFilled: boolean;
 }
 
 export default function PaymentPage({
@@ -41,7 +45,10 @@ export default function PaymentPage({
   isUploading,
   isConverting,
   handleFileChange,
-  handleSubmit
+  handleSubmit,
+  seatNames,
+  onSeatNameChange,
+  allNamesFilled
 }: PaymentPageProps) {
   const { isDarkMode } = useDarkMode();
   const { t, isRTL } = useLanguageContext();
@@ -69,6 +76,17 @@ export default function PaymentPage({
           formattedTime={formattedTime}
           isDarkMode={isDarkMode}
         />
+
+        {/* Seat Names List - Required before payment */}
+        {bookingDetails?.seats && bookingDetails.categories && (
+          <SeatNamesList
+            seats={bookingDetails.seats}
+            categories={bookingDetails.categories}
+            seatNames={seatNames}
+            onNameChange={onSeatNameChange}
+            isDarkMode={isDarkMode}
+          />
+        )}
 
         {/* Payment Method Selection - Only show for manual payment mode */}
         {paymentMode === 'manual' && (
@@ -107,6 +125,7 @@ export default function PaymentPage({
             bookingId={bookingId}
             bookingDetails={bookingDetails}
             paymentMode={paymentMode}
+            allNamesFilled={allNamesFilled}
           />
         </form>
       </div>

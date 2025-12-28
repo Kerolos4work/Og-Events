@@ -219,6 +219,39 @@ export default function OrdersPage() {
     }
   }, []);
 
+  // Define category order for sorting
+  const CATEGORY_ORDER = ['Front', 'Center', 'Top'];
+
+  const sortSeats = (seats: BookingData['seats']) => {
+    return [...seats].sort((a, b) => {
+      // 1. Sort by Category
+      const catOrderA = CATEGORY_ORDER.indexOf(a.category);
+      const catOrderB = CATEGORY_ORDER.indexOf(b.category);
+
+      // Handle unknown categories (put them at the end)
+      const validOrderA = catOrderA === -1 ? 999 : catOrderA;
+      const validOrderB = catOrderB === -1 ? 999 : catOrderB;
+
+      if (validOrderA !== validOrderB) {
+        return validOrderA - validOrderB;
+      }
+
+      // 2. Sort by Row Number
+      const rowA = parseInt(a.rows.row_number) || 0;
+      const rowB = parseInt(b.rows.row_number) || 0;
+
+      if (rowA !== rowB) {
+        return rowA - rowB;
+      }
+
+      // 3. Sort by Seat Number
+      const seatA = parseInt(a.seat_number) || 0;
+      const seatB = parseInt(b.seat_number) || 0;
+
+      return seatA - seatB;
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -353,7 +386,8 @@ export default function OrdersPage() {
                             <span className="text-sm font-medium">{t('seats')} ({booking.seats?.length || 0})</span>
                           </div>
                           <ul className="ml-6 space-y-1">
-                            {booking.seats?.map((seat, index) => (
+                            {/* Sort the seats before mapping */}
+                            {booking.seats && sortSeats(booking.seats).map((seat, index) => (
                               <li key={index} className="text-sm text-slate-600 dark:text-slate-300">
                                 {seat.rows.zones.name} • {seat.rows.row_number} • {seat.seat_number}
                               </li>
