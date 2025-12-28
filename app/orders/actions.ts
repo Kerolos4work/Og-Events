@@ -17,6 +17,7 @@ export interface BookingData {
     seat_number: string;
     category: string;
     status: string;
+    name_on_ticket: string | null;
     rows: {
       row_number: string;
       zones: {
@@ -57,6 +58,7 @@ export async function getBookingsByIds(orderIds: string[]): Promise<{
           seat_number,
           category,
           status,
+          name_on_ticket,
           rows (
             row_number,
             zones (

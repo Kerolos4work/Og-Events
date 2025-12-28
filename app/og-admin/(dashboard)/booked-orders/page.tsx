@@ -4,9 +4,10 @@ import { Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getBookedOrders, BookingData } from './actions';
-import BookingsTable from './BookingsTable';
+import BookingsTable from '@/components/bookings/BookingsTable';
 import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { isAuthorizedAdmin } from '@/lib/admin';
+import BookingsTableClient from './BookingsTableClient';
 
 async function goBackToDashboard() {
   'use server';
@@ -112,7 +113,13 @@ async function BookedOrdersContent() {
               <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Approved Bookings</h2>
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">View and download tickets for all approved bookings</p>
             </div>
-            <BookingsTable bookings={bookings || []} />
+            <BookingsTableClient 
+              bookings={bookings || []}
+              showStatusColumn={false}
+              showPaymentProofColumn={false}
+              showCustomerActions={false}
+              showDownloadActions={true}
+            />
           </div>
         )}
       </div>

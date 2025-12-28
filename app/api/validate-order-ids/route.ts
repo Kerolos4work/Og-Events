@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
           seat_number,
           category,
           status,
+          name_on_ticket,
           rows (
             row_number,
             zones (
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
     console.log('Valid UUIDs not in DB:', nonExistingUuids);
     console.log('All invalid IDs:', allInvalidIds);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       validIds: existingIds,
       invalidIds: allInvalidIds,
       allBookings: data

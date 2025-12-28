@@ -30,6 +30,7 @@ export async function POST(request: Request) {
           seat_number,
           category,
           status,
+          name_on_ticket,
           rows (
             row_number,
             zones (
