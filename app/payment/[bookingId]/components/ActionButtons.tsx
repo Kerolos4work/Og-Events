@@ -15,6 +15,7 @@ interface ActionButtonsProps {
   bookingDetails?: any;
   paymentMode?: string;
   allNamesFilled?: boolean;
+  onUpdateSeatNames?: () => Promise<boolean>;
 }
 
 export default function ActionButtons({
@@ -26,6 +27,7 @@ export default function ActionButtons({
   bookingDetails,
   paymentMode,
   allNamesFilled = true,
+  onUpdateSeatNames
 }: ActionButtonsProps) {
   const router = useRouter();
   const { t, isRTL } = useLanguageContext();
@@ -40,6 +42,12 @@ export default function ActionButtons({
     setIsProcessingPayment(true);
 
     try {
+      // Update seat names before proceeding
+      if (onUpdateSeatNames) {
+        console.log('Updating seat names before payment...');
+        await onUpdateSeatNames();
+      }
+
       // Get the price from booking details, with fallback to 0 if undefined
       const amount = bookingDetails.amount;
       console.log('Payment amount:', amount, 'Booking ID:', bookingId);

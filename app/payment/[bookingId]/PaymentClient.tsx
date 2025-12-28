@@ -35,7 +35,8 @@ export default function PaymentClient({ bookingId, shouldRedirect = false }: Pay
         error: submissionError,
         success,
         handleFileChange,
-        handleSubmit
+        handleSubmit,
+        updateSeatNamesInDB
     } = usePaymentSubmission(bookingId, seatNames);
 
     // Handle redirection if needed
@@ -58,9 +59,44 @@ export default function PaymentClient({ bookingId, shouldRedirect = false }: Pay
     useEffect(() => {
         if (bookingDetails?.seats) {
             const initialNames: Record<string, string> = {};
-            bookingDetails.seats.forEach((seat: any) => {
+
+            // Define category order for sorting (same as SeatNamesList and OrdersPage)
+            const CATEGORY_ORDER = ['Front', 'Center', 'Top'];
+
+            // Sort seats to identify the first one deterministically
+            const sortedSeats = [...bookingDetails.seats].sort((a: any, b: any) => {
+                // 1. Sort by Category
+                const catOrderA = CATEGORY_ORDER.indexOf(a.category);
+                const catOrderB = CATEGORY_ORDER.indexOf(b.category);
+
+                const validOrderA = catOrderA === -1 ? 999 : catOrderA;
+                const validOrderB = catOrderB === -1 ? 999 : catOrderB;
+
+                if (validOrderA !== validOrderB) {
+                    return validOrderA - validOrderB;
+                }
+
+                // 2. Sort by Row Number
+                const rowA = parseInt(a.rows.row_number) || 0;
+                const rowB = parseInt(b.rows.row_number) || 0;
+
+                if (rowA !== rowB) {
+                    return rowA - rowB;
+                }
+
+                // 3. Sort by Seat Number
+                const seatA = parseInt(a.seat_number) || 0;
+                const seatB = parseInt(b.seat_number) || 0;
+
+                return seatA - seatB;
+            });
+
+            sortedSeats.forEach((seat: any, index: number) => {
                 if (seat.name_on_ticket) {
                     initialNames[seat.id] = seat.name_on_ticket;
+                } else if (index === 0 && bookingDetails.name) {
+                    // Pre-fill the first seat with the booking owner's name if empty
+                    initialNames[seat.id] = bookingDetails.name;
                 }
             });
             setSeatNames(initialNames);
@@ -116,6 +152,7 @@ export default function PaymentClient({ bookingId, shouldRedirect = false }: Pay
             seatNames={seatNames}
             onSeatNameChange={handleSeatNameChange}
             allNamesFilled={allNamesFilled}
+            onUpdateSeatNames={updateSeatNamesInDB}
         />
     );
 }

@@ -44,6 +44,28 @@ export const usePaymentSubmission = (bookingId: string, seatNames?: Record<strin
     }
   };
 
+  // Separate function to update seat names
+  const updateSeatNamesInDB = async () => {
+    if (seatNames && Object.keys(seatNames).length > 0) {
+      try {
+        const updatePromises = Object.entries(seatNames).map(([seatId, name]) =>
+          supabase
+            .from('seats')
+            .update({ name_on_ticket: name.trim() })
+            .eq('id', seatId)
+        );
+
+        await Promise.all(updatePromises);
+        console.log('Seat names updated successfully');
+        return true;
+      } catch (nameError) {
+        console.error('Error updating seat names:', nameError);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -79,21 +101,7 @@ export const usePaymentSubmission = (bookingId: string, seatNames?: Record<strin
       }
 
       // Update seat names if provided
-      if (seatNames && Object.keys(seatNames).length > 0) {
-        try {
-          const updatePromises = Object.entries(seatNames).map(([seatId, name]) =>
-            supabase
-              .from('seats')
-              .update({ name_on_ticket: name.trim() })
-              .eq('id', seatId)
-          );
-
-          await Promise.all(updatePromises);
-        } catch (nameError) {
-          console.error('Error updating seat names:', nameError);
-          // Don't fail the whole transaction if name update fails
-        }
-      }
+      await updateSeatNamesInDB();
 
       if (data && data.success) {
         // Mark the payment as uploaded instead of clearing
@@ -121,6 +129,7 @@ export const usePaymentSubmission = (bookingId: string, seatNames?: Record<strin
     error,
     success,
     handleFileChange,
-    handleSubmit
+    handleSubmit,
+    updateSeatNamesInDB
   };
 };

@@ -34,6 +34,7 @@ interface PaymentPageProps {
   seatNames: Record<string, string>;
   onSeatNameChange: (seatId: string, name: string) => void;
   allNamesFilled: boolean;
+  onUpdateSeatNames: () => Promise<boolean>;
 }
 
 export default function PaymentPage({
@@ -48,7 +49,8 @@ export default function PaymentPage({
   handleSubmit,
   seatNames,
   onSeatNameChange,
-  allNamesFilled
+  allNamesFilled,
+  onUpdateSeatNames
 }: PaymentPageProps) {
   const { isDarkMode } = useDarkMode();
   const { t, isRTL } = useLanguageContext();
@@ -126,6 +128,7 @@ export default function PaymentPage({
             bookingDetails={bookingDetails}
             paymentMode={paymentMode}
             allNamesFilled={allNamesFilled}
+            onUpdateSeatNames={onUpdateSeatNames}
           />
         </form>
       </div>
