@@ -9,7 +9,7 @@ export default function Home() {
   usePendingBookingRedirect();
   
   // Using the specific plan ID
-  const planId = '622637ae-480d-4fc2-9316-30d15f074af7';
+  const planId = '6667da4b-66e0-4d85-ba78-d65ed67dc85c';
 
   return (
     <div className="w-full h-screen overflow-hidden">
