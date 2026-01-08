@@ -14,6 +14,20 @@
       "title": "Payment Instructions",
       "paymentMethods": [
         {
+          "image": "https://play-lh.googleusercontent.com/Pv1p8v-KJq4Z_LLOjQjBZpK8DNJg4Zb5aNOQY7WfoiHR4Gfs165Z1TTNMThZ883Yfg",
+          "title": "Instapay",
+          "phoneNumber": "01027572172",
+          "name": "مهرائيل ف**** و*** ت****",
+          "color": "#b826d9"
+        },        
+        {
+          "image": "https://cdn.aptoide.com/imgs/d/3/4/d348ecefc59798c34d2be3507044163c_icon.png",
+          "title": "Orange Cash",
+          "phoneNumber": "01228222105",
+          "name": "ماريمنا ن**** ر**** ا***** س****",
+          "color": "#FF7A00"
+        },
+        {
           "image": "https://ali-printing.com/wp-content/uploads/2023/03/Vodafone-Cash-Logo.png",
           "title": "Vodafone Cash",
           "phoneNumber": "01090747556",
@@ -22,11 +36,11 @@
         },
         {
           "image": "https://play-lh.googleusercontent.com/Pv1p8v-KJq4Z_LLOjQjBZpK8DNJg4Zb5aNOQY7WfoiHR4Gfs165Z1TTNMThZ883Yfg",
-          "title": "Instapay",
-          "phoneNumber": "01027572172",
-          "name": "مهرائيل ف**** و*** ت****",
-          "color": "#b826d9"
-        }
+          "title": "Vodafone Cash 2",
+          "phoneNumber": "01008467103",
+          "name": "بريسكلا ف*** و*** ت****",
+          "color": "#ED1A23"
+        }\
       ],
       "description": "Payment methods displayed to users during checkout"
     }
