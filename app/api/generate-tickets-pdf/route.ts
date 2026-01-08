@@ -182,6 +182,9 @@ export async function POST(request: NextRequest) {
             <head>
                 <meta charset="utf-8">
                 <title>Event Tickets</title>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
                 <style>
                     @page {
                         size: A4;
@@ -216,3 +219,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
