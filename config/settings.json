@@ -14,17 +14,17 @@
       "title": "Payment Instructions",
       "paymentMethods": [
         {
-          "image": "https://cdn.aptoide.com/imgs/d/3/4/d348ecefc59798c34d2be3507044163c_icon.png",
-          "title": "Orange Cash",
-          "phoneNumber": "01203163377",
-          "name": "marina A*** a*****",
-          "color": "#FF7900"
+          "image": "https://ali-printing.com/wp-content/uploads/2023/03/Vodafone-Cash-Logo.png",
+          "title": "Vodafone Cash",
+          "phoneNumber": "01090747556",
+          "name": "اسطفانوس ك*** ر**** ش***** م****",
+          "color": "#ED1A23"
         },
         {
           "image": "https://play-lh.googleusercontent.com/Pv1p8v-KJq4Z_LLOjQjBZpK8DNJg4Zb5aNOQY7WfoiHR4Gfs165Z1TTNMThZ883Yfg",
           "title": "Instapay",
-          "phoneNumber": "01203163377",
-          "name": "Bero K**** H******",
+          "phoneNumber": "01027572172",
+          "name": "مهرائيل ف**** و*** ت****",
           "color": "#b826d9"
         }
       ],
